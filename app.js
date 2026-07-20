@@ -1,126 +1,949 @@
-const icons = {
-  spark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 5.5L5 10l5.5 1.5L12 17l1.5-5.5L19 10l-5.5-1.5L12 3Z"/><path d="m19 16-.7 2.3L16 19l2.3.7L19 22l.7-2.3L22 19l-2.3-.7L19 16Z"/></svg>`,
-  grid: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
-  map: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18 3 21V6l6-3 6 3 6-3v15l-6 3-6-3Z"/><path d="M9 3v15M15 6v15"/></svg>`,
-  target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M22 12h-3M12 22v-3M2 12h3"/></svg>`,
-  users: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 16 3-4 3 2 5-7"/></svg>`,
-  bell: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>`,
-  arrow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`,
-  chevron: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
-  close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
-  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>`,
-  clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
-  flag: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4c5-3 9 3 14 0v10c-5 3-9-3-14 0"/></svg>`,
-  info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>`,
-  light: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M8.8 14.5A6 6 0 1 1 15.2 14.5c-.8.7-1.2 1.3-1.2 2.5h-4c0-1.2-.4-1.8-1.2-2.5Z"/></svg>`,
-  upload: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>`
-};
-
-const personaThemes = {
-  space: { label: 'Space explorer', emoji: '🚀', accent: 'space', intro: 'Ready for your next learning mission?', nextLabel: 'Next mission', cardTitle: 'Make the denominator match' },
-  ocean: { label: 'Ocean explorer', emoji: '🌊', accent: 'ocean', intro: 'Ready to dive into your next learning wave?', nextLabel: 'Dive deeper', cardTitle: 'Make the denominator match' },
-  jungle: { label: 'Jungle adventurer', emoji: '🦕', accent: 'jungle', intro: 'Your next learning adventure is waiting.', nextLabel: 'Adventure pick', cardTitle: 'Make the denominator match' },
-  mystery: { label: 'Mystery detective', emoji: '🔎', accent: 'mystery', intro: 'There is a new clue hidden in your answers.', nextLabel: 'New clue', cardTitle: 'Make the denominator match' },
-  rainbow: { label: 'Creative learner', emoji: '🌈', accent: 'rainbow', intro: 'Let’s make your next learning move count.', nextLabel: 'Your next move', cardTitle: 'Make the denominator match' }
-};
-const defaultState = { role: 'student', view: 'home', modal: false, submitted: false, answer: '', confidence: 'Somewhat sure', selectedCluster: 'cluster-1', toast: '', interventionAssigned: false, childProfile: null, parentSetupOpen: true, draftTheme: 'space', draftName: '', draftFavorite: '' };
-const savedState = JSON.parse(localStorage.getItem('learnloop-demo') || '{}');
-let state = { ...defaultState, ...savedState, parentSetupOpen: savedState.childProfile ? false : true };
-let toastTimer;
-
-function inferTheme(favorite = '', fallback = 'rainbow') { const text = String(favorite).toLowerCase(); const rules = [['space', ['space','planet','star','astronaut','galaxy','rocket','nasa','sci-fi','rick and morty','alien']], ['ocean', ['ocean','sea','shark','fish','whale','mermaid','swim','beach','dolphin']], ['jungle', ['jungle','dinosaur','dino','animal','lion','tiger','safari','pokemon','adventure','minecraft']], ['mystery', ['mystery','detective','clue','crime','sherlock','spy','puzzle','Wednesday','case file']], ['rainbow', ['art','music','drawing','paint','dance','football','soccer','basketball','gaming','roblox','creative','anime']]]; const match = rules.find(([, keywords]) => keywords.some(keyword => text.includes(keyword.toLowerCase()))); if (match) return match[0]; if (text.trim()) { let score = 0; for (const character of text) score = (score * 31 + character.charCodeAt(0)) % 997; return ['space','ocean','jungle','mystery','rainbow'][score % 5]; } return fallback; }
-function currentPersona() { const profile = state.childProfile; const theme = inferTheme(profile?.favorite, profile?.theme || 'space'); return personaThemes[theme] || personaThemes.space; }
-function displayName() { return state.childProfile?.childName || 'Maya'; }
-function escapeHtml(value = '') { return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }
-
-const studentNav = [
-  ['home', icons.grid, 'Overview'], ['map', icons.map, 'My learning map'], ['practice', icons.target, 'Practice'], ['history', icons.clock, 'Activity history']
-];
-const teacherNav = [
-  ['overview', icons.grid, 'Class overview'], ['clusters', icons.users, 'Learning clusters'], ['insights', icons.chart, 'Insights'], ['students', icons.target, 'Students']
-];
-
-function save() { localStorage.setItem('learnloop-demo', JSON.stringify(state)); }
-function setState(patch) { state = { ...state, ...patch }; save(); render(); }
-function notify(message) { clearTimeout(toastTimer); state.toast = message; render(); toastTimer = setTimeout(() => { state.toast = ''; render(); }, 3000); }
-function navIcon(icon) { return `<span class="nav-icon">${icon}</span>`; }
-
-function topbar() { const profile = state.childProfile; return `<header class="topbar">
-  <div class="brand"><div class="brand-mark">${icons.spark}</div><div class="brand-name">learnloop<span class="brand-tag">/ demo</span></div></div>
-  <div class="topbar-center"><button class="top-link ${state.role === 'student' ? 'active' : ''}" data-action="role-student">Student view</button><button class="top-link ${state.role === 'teacher' ? 'active' : ''}" data-action="role-teacher">Teacher view</button></div>
-  <div class="topbar-actions">${state.role === 'student' && profile ? `<button class="personalize-chip" data-action="open-personalize"><span>${currentPersona().emoji}</span>${escapeHtml(profile.favorite || currentPersona().label)} <span class="personalize-edit">Change</span></button>` : ''}<span class="demo-pill"><span class="live-dot"></span> Demo workspace</span><button class="icon-button" aria-label="Notifications">${icons.bell}</button><div class="avatar">${state.role === 'student' ? escapeHtml((displayName().slice(0, 2) || 'MP').toUpperCase()) : 'AN'}</div></div>
-</header>`; }
-
-function sidebar() {
-  const persona = currentPersona();
-  const nav = state.role === 'student' ? studentNav.map(([key, icon, label]) => {
-    const labels = {
-      space: { home: 'Mission control', map: 'Star map', practice: 'Launch practice', history: 'Mission log' },
-      ocean: { home: 'Home current', map: 'Concept reef', practice: 'Dive practice', history: 'Tide log' },
-      jungle: { home: 'Trailhead', map: 'Discovery trail', practice: 'Next expedition', history: 'Field notes' },
-      mystery: { home: 'Case board', map: 'Evidence map', practice: 'Open a clue', history: 'Case history' },
-      rainbow: { home: 'Studio', map: 'Idea canvas', practice: 'Create & practice', history: 'Creative log' }
+class LearnLoop {
+  constructor() {
+    this.state = {
+      appView: 'auth',
+      authMode: 'login',
+      authName: '',
+      authError: '',
+      authRole: 'student',
+      studentName: 'Maya Chen',
+      teacherMode: 'normal',
+      exPhase: 'q1',
+      studentMode: 'normal',
+      hintShown: false,
+      confidence: 3,
+      q1Selected: null,
+      q1Checked: false,
+      q1Correct: false,
+      q2Selected: null,
+      q2Checked: false,
+      q2Correct: false,
+      hearts: 5,
+      totalXp: 350,
+      lessonXp: 0,
+      streakDays: 12,
+      xpChips: [],
+      confetti: [],
+      flash: null,
+      nodeStates: { eq: 'done', denom: 'done', add: 'active', sub: 'locked', mixed: 'locked', word: 'locked' },
+      popoverOpen: false,
+      popoverNodeId: null,
+      lockShakeId: null,
+      parallax: { x: 0, y: 0 },
+      badgeUnlocked: { detective: false, starter: true, master: false, speed: false },
+      justUnlockedBadge: null,
+      dailyGoalCurrent: 2,
+      dailyGoalTarget: 3,
+      view: 'map',
+      isStudentLoading: false,
+      isStudentEmpty: false,
+      isStudentNormal: true,
+      isMapView: true,
+      isExerciseView: false,
+      selection: {},
+      selectedClusterId: 'c1',
+      selectedStudentKeys: ['maya', 'jordan', 'aisha', 'liam', 'sofia', 'ethan'],
+      teacherNote: 'Small-group reteach with fraction strips: show why denominators must match before adding.',
+      assignmentMessage: ''
     };
-    return [key, icon, labels[persona.accent]?.[key] || label];
-  }) : teacherNav;
-  return `<aside class="sidebar"><button class="workspace-switcher"><span><small>Workspace</small><strong>${state.role === 'student' ? 'Maya Patel' : '8B · Fractions'}</strong></span>${icons.chevron}</button><p class="nav-label">${state.role === 'student' ? 'Learn' : 'Teach'}</p><nav class="side-nav">${nav.map(([key, icon, label]) => `<button class="${state.view === key ? 'active' : ''}" data-action="navigate" data-view="${key}">${icon}<span>${label}</span></button>`).join('')}</nav><div class="sidebar-bottom"><div class="engine-card"><div class="engine-label"><span class="live-dot"></span> Learning engine</div><strong>Evidence-first mode</strong><p>Deterministic procedures are active for this demo.</p><div class="engine-check">${icons.check} All systems ready</div></div></div></aside>`; }
 
-function metrics() { return `<div class="metric-grid"><div class="metric-card blue"><div class="metric-top"><span class="metric-icon blue">${icons.target}</span> Focus time</div><div class="metric-value">42 <span style="font-size:12px;font-family:inherit;letter-spacing:0;color:var(--muted)">min</span><span class="metric-change">↑ 18%</span></div></div><div class="metric-card green"><div class="metric-top"><span class="metric-icon green">${icons.check}</span> Questions solved</div><div class="metric-value">18 <span class="metric-change">↑ 6 this week</span></div></div><div class="metric-card amber"><div class="metric-top"><span class="metric-icon amber">${icons.spark}</span> Current streak</div><div class="metric-value">5 <span style="font-size:12px;font-family:inherit;letter-spacing:0;color:var(--muted)">days</span></div></div><div class="metric-card lilac"><div class="metric-top"><span class="metric-icon lilac">${icons.map}</span> Map coverage</div><div class="metric-value">68<span style="font-size:15px;letter-spacing:-.03em">%</span><span class="metric-change">↑ 9%</span></div></div></div>`; }
+    this.primaryColor = '#6d5ef7';
+    this.motionIntensity = 'playful';
+    this.livesSystem = true;
+    this.INK = '#1a1a2e';
 
-function mapPanel() { return `<section class="panel"><div class="panel-head"><div><div class="panel-title">Your learning map</div><p class="panel-subtitle">A living view of what your answers are showing us.</p></div><button class="text-link" data-action="navigate" data-view="map">View full map ${icons.arrow}</button></div><div class="map-wrap"><div class="map-canvas"><span class="map-line l1"></span><span class="map-line l2"></span><span class="map-line l3"></span><span class="map-line l4"></span>
-  <div class="map-node green"><div class="node-dot">✓</div><div class="node-name">Equivalent fractions</div><div class="node-state">Mastered</div></div>
-  <div class="map-node blue"><div class="node-dot">↗</div><div class="node-name">Common denominators</div><div class="node-state">Improving</div></div>
-  <div class="map-node amber"><div class="node-dot">!</div><div class="node-name">Fraction addition</div><div class="node-state">Developing</div></div>
-  <div class="map-node rose"><div class="node-dot">!</div><div class="node-name">Unscaled numerator</div><div class="node-state">Blocked</div></div>
-  <div class="map-node lilac"><div class="node-dot">?</div><div class="node-name">Word problems</div><div class="node-state">Unknown</div></div>
-  </div><div class="legend"><span class="legend-item"><i class="legend-dot dot-mint"></i> Mastered</span><span class="legend-item"><i class="legend-dot dot-blue"></i> Improving</span><span class="legend-item"><i class="legend-dot dot-amber"></i> Developing</span><span class="legend-item"><i class="legend-dot dot-rose"></i> Blocked</span><span class="legend-item"><i class="legend-dot dot-lilac"></i> Unknown</span></div></div></section>`; }
+    this.NODES = [
+      { id: 'eq', name: 'Equivalent Fractions', x: 15, y: 82 },
+      { id: 'denom', name: 'Common Denominators', x: 27, y: 57 },
+      { id: 'add', name: 'Fraction Addition', x: 46, y: 36 },
+      { id: 'sub', name: 'Fraction Subtraction', x: 68, y: 45 },
+      { id: 'mixed', name: 'Mixed Numbers', x: 74, y: 20 },
+      { id: 'word', name: 'Word Problems', x: 90, y: 32 }
+    ];
 
-function nextCard() { const profile = currentPersona(); return `<div class="next-card"><p class="eyebrow">${profile.emoji} ${profile.nextLabel}</p><h3>${profile.cardTitle}</h3><p>Your last two answers show the right addition step, but the second fraction was not scaled yet.</p><div class="next-meta"><span class="dark-chip">Common denominators</span><span class="dark-chip">Diagnostic · 3 min</span></div><button class="button" data-action="open-practice">Start focused practice ${icons.arrow}</button></div>`; }
-function activityPanel() { return `<section class="panel"><div class="panel-head"><div><div class="panel-title">Recent feedback</div><p class="panel-subtitle">Small signals from your latest practice.</p></div><button class="text-link" data-action="navigate" data-view="history">See history</button></div><div class="activity-list"><div class="activity"><span class="activity-icon good">${icons.check}</span><div class="activity-main"><div class="activity-title">Equivalent fractions is now mastered</div><div class="activity-time">Today · after 4 varied questions</div></div><span class="activity-score">+12</span></div><div class="activity"><span class="activity-icon warn">${icons.flag}</span><div class="activity-main"><div class="activity-title">A pattern was noticed in fraction addition</div><div class="activity-time">Today · evidence quality: high</div></div><span class="activity-score" style="color:var(--amber)">Review</span></div><div class="activity"><span class="activity-icon info">${icons.spark}</span><div class="activity-main"><div class="activity-title">Your visual model helped</div><div class="activity-time">Yesterday · confidence: sure</div></div><span class="activity-score">+8</span></div></div></section>`; }
-function progressPanel() { return `<section class="panel"><div class="panel-title">This week at a glance</div><p class="panel-subtitle">You are building a steady practice rhythm.</p><div class="progress-row"><div class="progress-label"><span>Practice goal</span><strong>4 / 5 days</strong></div><div class="progress-track"><div class="progress-fill fill-blue" style="width:80%"></div></div></div><div class="progress-row"><div class="progress-label"><span>Concept coverage</span><strong>68%</strong></div><div class="progress-track"><div class="progress-fill fill-mint" style="width:68%"></div></div></div><div class="progress-row"><div class="progress-label"><span>Confidence calibration</span><strong>Good</strong></div><div class="progress-track"><div class="progress-fill fill-lilac" style="width:76%"></div></div></div><div class="confidence-box">${icons.info}<div><strong>One more signal will make this diagnosis stronger</strong><p>Answer the recommended question and we can confirm whether the issue is scaling or denominator selection.</p></div></div></section>`; }
+    this.EDGES = [['eq', 'denom'], ['denom', 'add'], ['add', 'sub'], ['add', 'mixed'], ['sub', 'word']];
 
-function evidencePanel() { return `<section class="panel evidence-card"><div class="panel-head"><div><div class="panel-title">Why this is your next step</div><p class="panel-subtitle">The recommendation is explainable, not random.</p></div><span class="tag mint">Evidence-backed</span></div><div class="evidence-list"><div class="evidence-item"><span class="evidence-marker" style="background:var(--blue-soft);color:var(--blue)">1</span><p><strong>Target gap</strong>Common denominator selection needs one more check.</p><span class="evidence-score">0.88 fit</span></div><div class="evidence-item"><span class="evidence-marker" style="background:var(--amber-soft);color:var(--amber)">2</span><p><strong>Representation</strong>A symbolic question follows your visual model success.</p><span class="evidence-score" style="color:var(--amber)">+0.10</span></div><div class="evidence-item"><span class="evidence-marker" style="background:var(--lilac-soft);color:var(--lilac)">3</span><p><strong>Spacing</strong>Last practised 2 days ago — ready for a re-check.</p><span class="evidence-score" style="color:var(--lilac)">+0.05</span></div></div></section>`; }
-function adaptiveStudentHome() { const profile = state.childProfile || { childName: 'Maya', favorite: 'Space explorer', theme: 'space' }; const persona = currentPersona(); const name = escapeHtml(profile.childName || 'Maya'); const favorite = escapeHtml(profile.favorite || persona.label); const theme = persona.accent; const intros = { space: ['Mission control', 'Plot your next learning move', 'Launch a focused question and clear the next checkpoint.'], ocean: ['Dive dashboard', 'Explore your learning current', 'Follow the strongest signal and keep your momentum moving.'], jungle: ['Adventure trail', 'Choose your next discovery', 'Every clue on the trail comes from something you actually answered.'], mystery: ['Case file 08B', 'Investigate your next clue', 'Your evidence trail points to one small move worth testing.'], rainbow: ['Creative studio', 'Build your next learning combo', 'Mix the right practice, feedback, and confidence signal.'] }; const copy = intros[theme] || intros.space; return `<div class="adaptive-home adaptive-${theme}"><div class="view-header personalized-header adaptive-hero"><div><p class="eyebrow">${persona.emoji} ${copy[0]} · Tuesday, October 14 · Grade 8 mathematics</p><h1>${copy[1]}, ${name}</h1><p class="lede">${persona.intro} ${copy[2]}</p></div><div class="persona-banner"><span class="persona-orb">${persona.emoji}</span><div><span>Presentation recipe for ${name}</span><strong>${favorite}</strong><button data-action="open-personalize">Remix my learning space ${icons.arrow}</button></div></div></div><div class="adaptive-welcome"><span class="welcome-icon">${persona.emoji}</span><div><strong>${favorite} mode is shaping the interface</strong><p>Cards, language, and navigation are adapted for this learner. The underlying evidence is unchanged.</p></div><span class="recipe-pill">${theme} recipe</span></div>${metrics()}<div class="adaptive-content"><div class="adaptive-primary">${mapPanel()}${evidencePanel()}</div><div class="adaptive-secondary">${nextCard()}${activityPanel()}${progressPanel()}</div></div><div class="demo-note">${icons.info} Synthetic demo data · ${favorite} presentation recipe active · Learning evidence stays the same</div></div>`; }
-function generatedRecipeLayout(theme) {
-  const layouts = {
-    space: `<div class="recipe-layout recipe-mission"><div class="recipe-spotlight">${nextCard()}</div><div class="recipe-columns"><div>${mapPanel()}</div><div>${progressPanel()}${activityPanel()}</div></div>${evidencePanel()}</div>`,
-    ocean: `<div class="recipe-layout recipe-current"><div class="current-track"><div class="current-stop active"><span>01</span><strong>Catch the signal</strong><small>Focus time · 42 min</small></div><div class="current-line"></div><div class="current-stop"><span>02</span><strong>Explore the concept reef</strong><small>Map coverage · 68%</small></div><div class="current-line"></div><div class="current-stop"><span>03</span><strong>Surface with confidence</strong><small>Practice rhythm · 4 / 5 days</small></div></div><div class="recipe-columns"><div>${nextCard()}${activityPanel()}</div><div>${mapPanel()}${evidencePanel()}</div></div></div>`,
-    jungle: `<div class="recipe-layout recipe-trail"><div class="trail-board"><div class="trail-start"><span class="trail-marker">START</span><strong>Pick your next discovery</strong><p>The recommendation is the next landmark on your trail.</p></div><div class="trail-path"><div class="trail-step done"><span>✓</span><strong>Equivalent fractions</strong><small>Mastered</small></div><div class="trail-step current"><span>2</span><strong>Common denominators</strong><small>Improving</small></div><div class="trail-step"><span>3</span><strong>Fraction addition</strong><small>Developing</small></div></div></div><div class="recipe-columns"><div>${nextCard()}${evidencePanel()}</div><div>${activityPanel()}${mapPanel()}</div></div></div>`,
-    mystery: `<div class="recipe-layout recipe-case"><div class="case-grid"><div class="case-main">${evidencePanel()}</div><div class="case-clue">${nextCard()}</div></div><div class="recipe-columns"><div>${activityPanel()}</div><div>${mapPanel()}${progressPanel()}</div></div></div>`,
-    rainbow: `<div class="recipe-layout recipe-studio"><div class="studio-board"><div class="studio-card studio-feature">${nextCard()}</div><div class="studio-card studio-progress">${progressPanel()}</div><div class="studio-card studio-map">${mapPanel()}</div><div class="studio-card studio-feedback">${activityPanel()}</div></div>${evidencePanel()}</div>`
-  };
-  return layouts[theme] || layouts.space;
+    this.REASONS = {
+      eq: "You've shown this across many problem types.",
+      denom: 'Recent answers beat your earlier ones on this step.',
+      add: 'This checks whether you find a common denominator before adding.',
+      sub: "We're not fully sure yet — a couple more answers will confirm it.",
+      mixed: 'Not enough evidence yet.',
+      word: 'Not enough evidence yet.'
+    };
+
+    this.Q1_OPTIONS = [
+      { id: 'a', label: '1/2', correct: true },
+      { id: 'b', label: '2/3', correct: false },
+      { id: 'c', label: '3/4', correct: false },
+      { id: 'd', label: '1/4', correct: false }
+    ];
+
+    this.Q2_CHIPS = [
+      { id: 'x', label: 'numerator', correct: false },
+      { id: 'y', label: 'denominator', correct: true },
+      { id: 'z', label: 'product', correct: false }
+    ];
+
+    this.BADGE_DEFS = [
+      { id: 'detective', label: 'Denominator Detective', icon: '★' },
+      { id: 'starter', label: 'Momentum Starter', icon: '▲' },
+      { id: 'master', label: 'Fraction Master', icon: '✓' },
+      { id: 'speed', label: 'Speed Solver', icon: '◆' }
+    ];
+
+    this.CLUSTER_DEFS = [
+      { id: 'c1', title: 'Adds numerators and denominators straight across', concept: 'Fraction Addition', count: 9, confidence: 'High', evidence: '"3/4 + 1/2" answered as "4/6" — numerator and denominator combined directly.' },
+      { id: 'c2', title: 'Scales the denominator but forgets the numerator', concept: 'Scaling Numerators', count: 5, confidence: 'Medium', evidence: '"2/3 → 8/12" but the numerator is left unscaled in the next step.' },
+      { id: 'c3', title: 'Treats mixed numbers as two separate fractions', concept: 'Mixed Numbers', count: 6, confidence: 'Low', evidence: 'Whole-number and fraction parts answered independently, not recombined.' }
+    ];
+
+    this.STUDENTS = [
+      { key: 'maya', name: 'Maya Chen', confidence: 'High' },
+      { key: 'jordan', name: 'Jordan Patel', confidence: 'High' },
+      { key: 'aisha', name: 'Aisha Osei', confidence: 'Medium' },
+      { key: 'liam', name: 'Liam Brooks', confidence: 'High' },
+      { key: 'sofia', name: 'Sofia Ramirez', confidence: 'High' },
+      { key: 'ethan', name: 'Ethan Wu', confidence: 'Medium' },
+      { key: 'grace', name: 'Grace Kim', confidence: 'High' },
+      { key: 'noah', name: 'Noah Castillo', confidence: 'High' },
+      { key: 'zoe', name: 'Zoe Bennett', confidence: 'Medium' }
+    ];
+  }
+
+  _hexA(hex, a) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>'"]/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[char]));
+  }
+
+  _confettiCount() {
+    const m = this.motionIntensity || 'playful';
+    return m === 'calm' ? 0 : m === 'max' ? 30 : 14;
+  }
+
+  _burst(big = false, top) {
+    const count = this._confettiCount() * (big ? 1.6 : 1);
+    if (!count) return;
+    const palette = [this.primaryColor, '#12b886', '#ffb020', '#ff6b5e', '#1a1a2e'];
+    const now = Date.now();
+    const fresh = [];
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 60 + Math.random() * (big ? 160 : 90);
+      fresh.push({
+        id: now + '-' + i,
+        left: 30 + Math.random() * 40,
+        top: (top !== undefined ? top : (big ? 15 : 30)) + Math.random() * 10,
+        color: palette[i % palette.length],
+        dx: Math.round(Math.cos(angle) * dist),
+        dy: Math.round(Math.sin(angle) * dist - (big ? 40 : 10)),
+        rot: Math.round(Math.random() * 480 - 240),
+        delay: Math.round(Math.random() * 120)
+      });
+    }
+    this.state.confetti = this.state.confetti.concat(fresh);
+    this.render();
+    setTimeout(() => {
+      this.state.confetti = [];
+      this.render();
+    }, 1100);
+  }
+
+  _flash(kind) {
+    this.state.flash = kind;
+    this.render();
+    setTimeout(() => {
+      this.state.flash = null;
+      this.render();
+    }, 400);
+  }
+
+  setState(patch) {
+    this.state = { ...this.state, ...patch };
+    this.render();
+  }
+
+  handleAuthLogin = () => {
+    this.setState({ authMode: 'login', authError: '' });
+  }
+
+  handleAuthSignup = () => {
+    this.setState({ authMode: 'signup', authError: '' });
+  }
+
+  handleAuthRoleStudent = () => {
+    this.setState({ authRole: 'student', authError: '' });
+  }
+
+  handleAuthRoleTeacher = () => {
+    this.setState({ authRole: 'teacher', authError: '' });
+  }
+
+  handleSubmitAuth = (event) => {
+    event?.preventDefault();
+    const nameInput = document.getElementById('auth-name');
+    const name = (nameInput?.value || '').trim();
+    if (name.length < 2) {
+      this.setState({ authError: 'Enter a name with at least 2 characters.' });
+      nameInput?.focus();
+      return;
+    }
+    this.setState({
+      authName: name.slice(0, 80),
+      authError: '',
+      appView: this.state.authRole === 'teacher' ? 'teacher-overview' : 'student',
+      studentName: name.slice(0, 80)
+    });
+  }
+
+  handleLogout = () => {
+    this.setState({ appView: 'auth' });
+  }
+
+  handleNodeClick = (nodeId) => {
+    const st = this.state.nodeStates[nodeId];
+    if (st === 'active') {
+      this.setState({ popoverOpen: true, popoverNodeId: nodeId });
+      this._burst(false);
+      return;
+    }
+    if (st === 'locked') {
+      this.setState({ lockShakeId: nodeId });
+      setTimeout(() => this.setState({ lockShakeId: null }), 500);
+    }
+  }
+
+  handleStartExercise = () => {
+    const activeId = this.NODES.find(n => this.state.nodeStates[n.id] === 'active');
+    if (!activeId) return;
+    this.setState({
+      view: 'exercise',
+      isMapView: false,
+      isExerciseView: true,
+      popoverOpen: false,
+      exPhase: 'q1',
+      popoverNodeId: activeId.id,
+      q1Selected: null,
+      q1Checked: false,
+      q1Correct: false,
+      q2Selected: null,
+      q2Checked: false,
+      q2Correct: false,
+      lessonXp: 0,
+      xpChips: [],
+      confetti: [],
+      flash: null,
+      hintShown: false,
+      confidence: 3
+    });
+  }
+
+  handleQuitExercise = () => {
+    this.setState({ view: 'map', isMapView: true, isExerciseView: false });
+  }
+
+  handleClosePopover = () => {
+    this.setState({ popoverOpen: false });
+  }
+
+  handleSelectQ1 = (id) => {
+    if (!this.state.q1Checked) this.setState({ q1Selected: id });
+  }
+
+  handleSelectQ2 = (id) => {
+    if (!this.state.q2Checked) this.setState({ q2Selected: id });
+  }
+
+  handleShowHint = () => {
+    this.setState({ hintShown: true });
+  }
+
+  handleConfidenceChange = (value) => {
+    const confidence = Math.min(5, Math.max(1, Number.parseInt(value, 10) || 1));
+    this.setState({ confidence });
+  }
+
+  handleCheckAnswer = () => {
+    const onQ1 = this.state.exPhase === 'q1';
+    const pool = onQ1 ? this.Q1_OPTIONS : this.Q2_CHIPS;
+    const selectedId = onQ1 ? this.state.q1Selected : this.state.q2Selected;
+    if (!selectedId) return;
+
+    const correct = !!(pool.find(o => o.id === selectedId) || {}).correct;
+    const label = correct ? '+10 · correct answer' : '+2 · nice try';
+    const xpGain = correct ? 10 : 2;
+
+    if (correct) {
+      this._flash('green');
+      this._burst(false);
+    } else {
+      this._flash('red');
+    }
+
+    const unlockDetective = !onQ1 && correct && !this.state.badgeUnlocked.detective;
+    const extraChips = [];
+    let extraXp = 0;
+
+    if (onQ1) {
+      extraChips.push({ label: '+2 · shared confidence', xp: '+2' });
+      extraXp += 2;
+      if (this.state.hintShown) {
+        extraChips.push({ label: '+3 · used a hint', xp: '+3' });
+        extraXp += 3;
+      }
+    }
+
+    this.setState({
+      [onQ1 ? 'q1Checked' : 'q2Checked']: true,
+      [onQ1 ? 'q1Correct' : 'q2Correct']: correct,
+      hearts: correct ? this.state.hearts : Math.max(0, this.state.hearts - 1),
+      lessonXp: this.state.lessonXp + xpGain + extraXp,
+      xpChips: this.state.xpChips.concat([{ label, xp: '+' + xpGain }], extraChips),
+      badgeUnlocked: unlockDetective ? { ...this.state.badgeUnlocked, detective: true } : this.state.badgeUnlocked,
+      justUnlockedBadge: unlockDetective ? 'detective' : this.state.justUnlockedBadge
+    });
+
+    if (unlockDetective) this._burst(true, 40);
+  }
+
+  handleContinueFeedback = () => {
+    if (this.state.exPhase === 'q1') {
+      this.setState({ exPhase: 'q2' });
+      return;
+    }
+    const bothCorrect = this.state.q1Correct && this.state.q2Correct;
+    const bonus = bothCorrect ? [{ label: '+5 · no mistakes', xp: '+5' }] : [];
+    this.setState({
+      exPhase: 'complete',
+      lessonXp: this.state.lessonXp + (bothCorrect ? 5 : 0),
+      xpChips: this.state.xpChips.concat(bonus)
+    });
+    this._burst(true, 20);
+  }
+
+  handleFinishLesson = () => {
+    const order = this.NODES.map(n => n.id);
+    const doneId = this.state.popoverNodeId || 'add';
+    const idx = order.indexOf(doneId);
+    const nextId = order[idx + 1];
+    const nodeStates = { ...this.state.nodeStates, [doneId]: 'done' };
+    if (nextId) nodeStates[nextId] = 'active';
+
+    this.setState({
+      view: 'map',
+      isMapView: true,
+      isExerciseView: false,
+      nodeStates,
+      totalXp: this.state.totalXp + this.state.lessonXp,
+      streakDays: this.state.streakDays + 1,
+      dailyGoalCurrent: Math.min(this.state.dailyGoalTarget, this.state.dailyGoalCurrent + 1),
+      justUnlockedBadge: null
+    });
+
+    setTimeout(() => this._burst(true, idx * 12), 50);
+  }
+
+  handleGraphMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    const ny = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    this.state.parallax = { x: nx, y: ny };
+    const layer = e.currentTarget.firstElementChild;
+    if (layer) layer.style.transform = `translate(${nx * 8}px,${ny * 6}px)`;
+  }
+
+  handleGraphLeave = () => {
+    this.state.parallax = { x: 0, y: 0 };
+    const graphContainer = document.getElementById('graph-container');
+    const layer = graphContainer?.firstElementChild;
+    if (layer) layer.style.transform = 'translate(0px,0px)';
+  }
+
+  handleTeacherCluster = (clusterId) => {
+    if (!this.CLUSTER_DEFS.some(cluster => cluster.id === clusterId)) return;
+    this.setState({ appView: 'teacher-cluster', selectedClusterId: clusterId, assignmentMessage: '' });
+  }
+
+  handleBackToOverview = () => {
+    this.setState({ appView: 'teacher-overview' });
+  }
+
+  handleTeacherStudentToggle = (studentKey, checked) => {
+    const selectedStudentKeys = new Set(this.state.selectedStudentKeys);
+    if (checked) selectedStudentKeys.add(studentKey);
+    else selectedStudentKeys.delete(studentKey);
+    const note = document.getElementById('intervention-note')?.value ?? this.state.teacherNote;
+    this.setState({ selectedStudentKeys: [...selectedStudentKeys], teacherNote: note, assignmentMessage: '' });
+  }
+
+  handleAssignIntervention = () => {
+    const selectedStudentKeys = [...document.querySelectorAll('[data-student-key]:checked')].map(input => input.dataset.studentKey);
+    const teacherNote = document.getElementById('intervention-note')?.value.trim() || '';
+    if (!selectedStudentKeys.length) {
+      this.setState({ selectedStudentKeys, teacherNote, assignmentMessage: 'Select at least one student before assigning.' });
+      return;
+    }
+    this.setState({
+      selectedStudentKeys,
+      teacherNote,
+      assignmentMessage: `Follow-up assigned to ${selectedStudentKeys.length} student${selectedStudentKeys.length === 1 ? '' : 's'}.`
+    });
+  }
+
+  render() {
+    const root = document.getElementById('root');
+    if (!root) return;
+    root.innerHTML = this.renderApp();
+    document.title = this.state.appView === 'auth' ? 'LearnLoop' : `LearnLoop · ${this.state.authRole === 'teacher' ? 'Teacher workspace' : 'Fractions'}`;
+    this.attachEventListeners();
+  }
+
+  renderApp() {
+    if (this.state.appView === 'auth') return this.renderAuth();
+    if (this.state.appView === 'student') return this.renderStudent();
+    if (this.state.appView === 'teacher-overview') return this.renderTeacherOverview();
+    if (this.state.appView === 'teacher-cluster') return this.renderTeacherCluster();
+    return this.renderStudent();
+  }
+
+  renderAuth() {
+    const INK = this.INK;
+    const primary = this.primaryColor;
+    return `
+      <div class="auth-shell" style="min-height:100vh;font-family:'Manrope',sans-serif;background-color:#faf6f0;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <form id="auth-form" class="auth-card" novalidate style="background:#fff;border:3px solid ${INK};box-shadow:8px 8px 0 ${INK};border-radius:24px;padding:36px 32px;max-width:380px;width:100%;">
+          <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;color:${INK};text-align:center;margin-bottom:4px;">LearnLoop</div>
+          <div style="font-size:13px;color:#8a8578;font-weight:700;text-align:center;margin-bottom:24px;">
+            ${this.state.authMode === 'login' ? 'Log in to continue your quests' : 'Create an account to get started'}
+          </div>
+
+          <div style="display:flex;gap:2px;background:#faf6f0;border:2px solid ${INK};border-radius:12px;padding:3px;margin-bottom:20px;">
+            <button type="button" id="auth-login-btn" aria-pressed="${this.state.authMode === 'login'}" style="flex:1;padding:9px 14px;border:none;border-radius:9px;background:${this.state.authMode === 'login' ? INK : 'transparent'};color:${this.state.authMode === 'login' ? '#fff' : '#8a8578'};font-family:Manrope,sans-serif;font-weight:800;font-size:12.5px;cursor:pointer;">Log in</button>
+            <button type="button" id="auth-signup-btn" aria-pressed="${this.state.authMode === 'signup'}" style="flex:1;padding:9px 14px;border:none;border-radius:9px;background:${this.state.authMode === 'signup' ? INK : 'transparent'};color:${this.state.authMode === 'signup' ? '#fff' : '#8a8578'};font-family:Manrope,sans-serif;font-weight:800;font-size:12.5px;cursor:pointer;">Sign up</button>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <label for="auth-name" style="display:block;font-family:'Manrope',sans-serif;font-weight:800;font-size:11.5px;color:#8a8578;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">Name</label>
+            <input type="text" id="auth-name" name="name" value="${this.escapeHtml(this.state.authName)}" placeholder="e.g. Maya Chen" autocomplete="name" minlength="2" maxlength="80" required aria-invalid="${Boolean(this.state.authError)}" style="width:100%;padding:12px 14px;border:2.5px solid ${INK};border-radius:12px;font-family:Manrope,sans-serif;font-size:14px;outline:none;box-sizing:border-box;" />
+            ${this.state.authError ? `<div role="alert" style="color:#c2413a;font-size:12px;font-weight:700;margin-top:6px;">${this.escapeHtml(this.state.authError)}</div>` : ''}
+          </div>
+
+          <div style="margin-bottom:22px;">
+            <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:11.5px;color:#8a8578;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">I am a…</div>
+            <div style="display:flex;gap:10px;">
+              <button type="button" id="auth-student-btn" aria-pressed="${this.state.authRole === 'student'}" style="flex:1;padding:12px;border:2.5px solid ${INK};border-radius:12px;background:${this.state.authRole === 'student' ? primary : '#fff'};color:${this.state.authRole === 'student' ? '#fff' : INK};font-family:Fredoka,sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;${this.state.authRole === 'student' ? 'box-shadow:3px 3px 0 ' + INK + ';' : ''}">Student</button>
+              <button type="button" id="auth-teacher-btn" aria-pressed="${this.state.authRole === 'teacher'}" style="flex:1;padding:12px;border:2.5px solid ${INK};border-radius:12px;background:${this.state.authRole === 'teacher' ? primary : '#fff'};color:${this.state.authRole === 'teacher' ? '#fff' : INK};font-family:Fredoka,sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;${this.state.authRole === 'teacher' ? 'box-shadow:3px 3px 0 ' + INK + ';' : ''}">Teacher</button>
+            </div>
+          </div>
+
+          <button type="submit" id="submit-auth-btn" style="width:100%;padding:15px;border:2.5px solid ${INK};border-radius:16px;background:${primary};box-shadow:4px 4px 0 ${INK};color:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:15px;cursor:pointer;">
+            ${this.state.authMode === 'login' ? 'Log in' : 'Create account'}
+          </button>
+        </form>
+      </div>
+    `;
+  }
+
+  renderStudent() {
+    if (this.state.isExerciseView) return this.renderExercise();
+    return this.renderStudentMap();
+  }
+
+  renderStudentMap() {
+    const INK = this.INK;
+    const primary = this.primaryColor;
+    const EMERALD = '#12b886';
+    const nameParts = (this.state.studentName || 'Maya Chen').trim().split(/\s+/);
+    const studentInitials = this.escapeHtml(((nameParts[0] || 'M')[0] + (nameParts[1] || 'C')[0]).toUpperCase());
+    const safeStudentName = this.escapeHtml(this.state.studentName || 'Maya Chen');
+
+    const momentumBars = [0, 1, 2].map((i, idx) => {
+      const heights = [6, 10, 14];
+      return `<span style="display:inline-block;width:4px;height:${heights[i]}px;border-radius:2px;background:${primary};animation:barPop 1.8s ease-in-out infinite;animation-delay:${i * 0.15}s;margin-right:3px;"></span>`;
+    }).join('');
+
+    const energySlots = [0, 1, 2, 3, 4].map((i, idx) => {
+      const color = i < this.state.hearts ? '#ff6b5e' : '#eee6d9';
+      return `<span style="display:inline-block;width:6px;height:16px;border-radius:3px;background:${color};transition:background .3s ease;${i === this.state.hearts ? 'animation:barPop .5s ease-out;' : ''}"></span>`;
+    }).join('');
+
+    const nodes = this.NODES.map((n, idx) => {
+      const st = this.state.nodeStates[n.id];
+      const isActive = st === 'active', isDone = st === 'done', isLocked = st === 'locked';
+      const fill = isDone ? EMERALD : isActive ? primary : '#eee6d9';
+      const textOnFill = (isDone || isActive) ? '#fff' : '#a39d8f';
+      const shake = this.state.lockShakeId === n.id;
+      const floatDur = (2.6 + (idx % 3) * 0.4).toFixed(1);
+      const floatDelay = (idx * 0.15).toFixed(2);
+      const icon = isDone ? '✓' : isActive ? '◆' : '○';
+      return `
+        <div class="node-${n.id}" role="button" tabindex="0" aria-label="${n.name}: ${isDone ? 'complete' : isActive ? 'up next' : 'locked'}" aria-disabled="${isLocked || isDone}" style="position:absolute;left:${n.x}%;top:${n.y}%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;cursor:${isDone ? 'default' : 'pointer'};z-index:2;animation:floatY ${floatDur}s ease-in-out infinite;animation-delay:${floatDelay}s;${shake ? 'animation:shakeX .4s ease-in-out;' : ''}" data-node-id="${n.id}">
+          <div style="width:${isActive ? 52 : 44}px;height:${isActive ? 52 : 44}px;border-radius:14px;background:${fill};color:${textOnFill};display:flex;align-items:center;justify-content:center;font-size:${isActive ? 20 : 17}px;font-weight:800;border:2.5px solid ${INK};box-shadow:4px 4px 0 ${INK};${isLocked ? 'opacity:.55;' : ''}${isActive ? `box-shadow:4px 4px 0 ${INK}, 0 0 0 8px ${this._hexA(primary, 0.25)};` : ''}">${icon}</div>
+          <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:11.5px;color:${INK};background:#fff;border:2px solid ${INK};padding:2px 9px;border-radius:999px;white-space:nowrap;">${isDone ? 'Complete' : isActive ? 'Up next' : 'Locked'}</div>
+        </div>
+      `;
+    }).join('');
+
+    const edges = this.EDGES.map(([a, b], i) => {
+      const na = this.NODES.find(x => x.id === a);
+      const nb = this.NODES.find(x => x.id === b);
+      return `<line key="edge-${i}" x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="#e4ddd0" stroke-width="1"></line>`;
+    }).join('');
+
+    const confettiPieces = this.state.confetti.map((p, i) => {
+      const deg = p.rot || 0;
+      const style = `position:absolute;left:${p.left}%;top:${p.top}%;width:8px;height:8px;border-radius:2px;background:${p.color};animation:confettiFly 1s ease-out forwards;--dx:${p.dx}px;--dy:${p.dy}px;--rot:${deg}deg;animation-delay:${p.delay}ms;pointer-events:none;`;
+      return `<div style="${style}"></div>`;
+    }).join('');
+
+    const activeNode = this.NODES.find(n => this.state.nodeStates[n.id] === 'active');
+    const focusName = activeNode ? activeNode.name : 'All caught up!';
+    const focusReason = activeNode ? this.REASONS[activeNode.id] : 'No quests are queued right now — check back soon.';
+
+    const badges = this.BADGE_DEFS.map(b => {
+      const unlocked = this.state.badgeUnlocked[b.id];
+      return `
+        <div style="background:${unlocked ? '#fff' : '#faf6f0'};border:2.5px solid ${INK};border-radius:18px;padding:16px;text-align:center;${unlocked ? `box-shadow:4px 4px 0 ${INK};` : 'opacity:.4;'}">
+          <div style="font-size:28px;margin-bottom:6px;">${b.icon}</div>
+          <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:12px;color:${INK};">${b.label}</div>
+        </div>
+      `;
+    }).join('');
+
+    const dailyGoalPercentage = (this.state.dailyGoalCurrent / this.state.dailyGoalTarget) * 100;
+
+    return `
+      <div class="student-map-shell" style="min-height:100vh;font-family:'Manrope',sans-serif;background-color:#faf6f0;">
+        <div style="position:sticky;top:0;z-index:40;background:#faf6f0;border-bottom:3px solid ${INK};">
+          <div class="student-topbar" style="max-width:960px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;color:${INK};">LearnLoop</span>
+              <div style="display:flex;align-items:center;gap:8px;padding-left:12px;border-left:2px solid #e4ddd0;">
+                <div style="width:28px;height:28px;border-radius:9px;background:${primary};border:2px solid ${INK};display:flex;align-items:center;justify-content:center;color:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:11px;">${studentInitials}</div>
+              <span class="student-name" style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:13px;color:${INK};">${safeStudentName}</span>
+              </div>
+            </div>
+            <div class="student-stat-panel" style="display:flex;align-items:stretch;background:#fff;border:2.5px solid ${INK};border-radius:14px;box-shadow:3px 3px 0 ${INK};overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-right:2px solid ${INK};">
+                ${momentumBars}
+                <span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:13px;color:${INK};margin-left:2px;">${this.state.streakDays}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;padding:7px 12px;border-right:2px solid ${INK};">
+                <span style="color:${primary};font-size:15px;">◆</span><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:13px;color:${INK};">${this.state.totalXp}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:3px;padding:7px 12px;">
+                ${energySlots}
+              </div>
+            </div>
+            <button id="logout-btn" style="background:none;border:none;color:#a39d8f;font-family:'Manrope',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;">Log out</button>
+          </div>
+        </div>
+
+        <div class="student-map-content" style="max-width:820px;margin:0 auto;padding:44px 24px 120px;position:relative;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap;">
+            <div>
+              <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;color:${INK};margin-bottom:2px;">Fractions</div>
+              <div style="font-size:13.5px;color:#8a8578;font-weight:700;">Your quest board — tap the highlighted tile to continue</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;background:#fff;border:2.5px solid ${INK};box-shadow:4px 4px 0 ${INK};border-radius:16px;padding:10px 16px;">
+              <div style="width:60px;height:60px;border-radius:50%;background:conic-gradient(${primary} ${dailyGoalPercentage}%, #eee6d9 ${dailyGoalPercentage}%);border:2.5px solid ${INK};display:flex;align-items:center;justify-content:center;">
+                <div style="width:50px;height:50px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:12px;color:${INK};">${this.state.dailyGoalCurrent}/${this.state.dailyGoalTarget}</div>
+              </div>
+              <div>
+                <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:12.5px;color:${INK};">Today's goal</div>
+                <div style="font-size:11px;color:#8a8578;font-weight:700;">${this.state.dailyGoalCurrent === this.state.dailyGoalTarget ? 'Complete!' : 'Keep going'}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="student-recommendation" style="background:#fff;border:2.5px solid ${INK};box-shadow:5px 5px 0 ${INK};border-radius:20px;padding:20px 22px;margin-bottom:32px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+            <div style="width:52px;height:52px;border-radius:16px;background:${this._hexA(primary, 0.14)};border:2px solid ${INK};display:flex;align-items:center;justify-content:center;font-size:22px;color:${primary};flex-shrink:0;">◆</div>
+            <div style="flex:1;min-width:200px;">
+              <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:11px;color:#8a8578;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Recommended for you</div>
+              <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:17px;color:${INK};margin-bottom:4px;">${focusName}</div>
+              <div style="font-size:13px;color:#6b6558;line-height:1.4;">${focusReason}</div>
+            </div>
+            <button id="start-exercise-btn" ${activeNode ? '' : 'disabled'} style="padding:13px 20px;border:2.5px solid ${INK};border-radius:14px;background:${activeNode ? primary : '#eee6d9'};box-shadow:${activeNode ? '4px 4px 0 ' + INK : 'none'};color:${activeNode ? '#fff' : '#a39d8f'};font-family:Fredoka,sans-serif;font-weight:700;font-size:13.5px;cursor:${activeNode ? 'pointer' : 'not-allowed'};">${activeNode ? 'Start quest' : 'All quests complete'}</button>
+          </div>
+
+          <div class="student-graph" style="background:#fff;border:2.5px solid ${INK};box-shadow:6px 6px 0 ${INK};border-radius:22px;padding:20px;position:relative;overflow:hidden;height:360px;" id="graph-container">
+            <div style="position:relative;height:100%;transform:translate(${this.state.parallax.x * 8}px,${this.state.parallax.y * 6}px);transition:transform .25s ease-out;">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
+                ${edges}
+              </svg>
+              ${nodes}
+              ${confettiPieces}
+            </div>
+          </div>
+
+          <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:15px;color:${INK};margin:36px 0 14px;">Badges</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;">
+            ${badges}
+          </div>
+
+          ${this.state.popoverOpen && this.NODES.find(n => n.id === this.state.popoverNodeId) ? this.renderPopover() : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  renderPopover() {
+    const INK = this.INK;
+    const primary = this.primaryColor;
+    const popNode = this.NODES.find(n => n.id === this.state.popoverNodeId);
+    if (!popNode) return '';
+
+    return `
+      <div id="popover-backdrop" style="position:fixed;inset:0;background:rgba(26,26,46,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;">
+        <div id="quest-dialog" role="dialog" aria-modal="true" aria-labelledby="quest-dialog-title" tabindex="-1" style="background:#fff;border:3px solid ${INK};box-shadow:8px 8px 0 ${INK};border-radius:22px;padding:28px 26px;max-width:360px;width:100%;text-align:center;animation:cardIn .3s cubic-bezier(.34,1.56,.64,1);">
+          <div style="width:56px;height:56px;border-radius:16px;background:${this._hexA(primary, 0.14)};color:${primary};border:2.5px solid ${INK};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;margin:0 auto 14px;">◆</div>
+          <div id="quest-dialog-title" style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;color:${INK};margin-bottom:8px;">${popNode.name}</div>
+          <div style="font-size:13.5px;color:#6b6558;line-height:1.5;margin-bottom:20px;">${this.REASONS[popNode.id]}</div>
+          <button id="popover-start-btn" style="width:100%;padding:13px;border:2.5px solid ${INK};border-radius:14px;background:${primary};box-shadow:4px 4px 0 ${INK};color:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;margin-bottom:8px;">Start quest</button>
+          <button id="popover-close-btn" style="background:none;border:none;color:#a39d8f;font-family:'Manrope',sans-serif;font-weight:700;font-size:13px;cursor:pointer;width:100%;">Not now</button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderExercise() {
+    const INK = this.INK;
+    const primary = this.primaryColor;
+    const EMERALD = '#12b886';
+    const CORAL = '#ff6b5e';
+    const exPhase = this.state.exPhase;
+    const isQ1 = exPhase === 'q1', isQ2 = exPhase === 'q2', isComplete = exPhase === 'complete';
+    const feedbackShown = (isQ1 && this.state.q1Checked) || (isQ2 && this.state.q2Checked);
+    const checked = isQ1 ? this.state.q1Checked : this.state.q2Checked;
+    const correct = isQ1 ? this.state.q1Correct : this.state.q2Correct;
+    const selectedId = isQ1 ? this.state.q1Selected : this.state.q2Selected;
+
+    const progressPercentage = (isQ1 ? 25 : isQ2 ? 75 : 100);
+
+    const confettiPieces = this.state.confetti.map((p, i) => {
+      const style = `position:absolute;left:${p.left}%;top:${p.top}%;width:8px;height:8px;border-radius:2px;background:${p.color};animation:confettiFly 1s ease-out forwards;--dx:${p.dx}px;--dy:${p.dy}px;--rot:${p.rot || 0}deg;animation-delay:${p.delay}ms;pointer-events:none;`;
+      return `<div style="${style}"></div>`;
+    }).join('');
+
+    const flashBg = this.state.flash ? (this.state.flash === 'green' ? this._hexA(EMERALD, 0.15) : this._hexA(CORAL, 0.15)) : 'transparent';
+
+    return `
+      <div class="exercise-shell" style="min-height:100vh;font-family:'Manrope',sans-serif;background-color:${flashBg};transition:background-color .2s ease;">
+        <div style="position:sticky;top:0;z-index:40;background:#faf6f0;border-bottom:3px solid ${INK};">
+          <div style="max-width:600px;margin:0 auto;padding:14px 24px;">
+            <div style="display:flex;align-items:center;gap:14px;">
+              <button id="quit-exercise-btn" style="background:none;border:none;color:#a39d8f;font-size:24px;font-weight:800;cursor:pointer;padding:0;line-height:1;">×</button>
+              <div role="progressbar" aria-label="Quest progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progressPercentage}" style="flex:1;height:14px;border-radius:999px;background:#eee6d9;border:2px solid ${INK};overflow:hidden;">
+                <div style="background:${primary};height:100%;width:${progressPercentage}%;transition:width .3s ease;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="min-height:calc(100vh - 64px);display:flex;flex-direction:column;">
+          <div class="exercise-content" style="max-width:600px;margin:0 auto;padding:24px 24px 24px;width:100%;">
+            ${isQ1 ? `
+              <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;color:${INK};line-height:1.3;margin-bottom:28px;">Which fraction is equivalent to <span style="color:${primary};">2/4</span>?</div>
+              <div class="exercise-option-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;">
+                ${this.Q1_OPTIONS.map(o => {
+                  let bg = '#fff', border = INK, color = INK, shadow = 'true';
+                  if (checked) {
+                    if (o.correct) { bg = this._hexA(EMERALD, 0.16); color = INK; }
+                    else if (selectedId === o.id) { bg = this._hexA(CORAL, 0.16); color = INK; }
+                    else { bg = '#fff'; color = '#c9c2b3'; border = '#e4ddd0'; shadow = 'false'; }
+                  } else if (selectedId === o.id) {
+                    bg = this._hexA(primary, 0.14); color = INK;
+                  }
+                  return `
+                    <button type="button" class="q1-option" data-id="${o.id}" aria-pressed="${selectedId === o.id}" ${checked ? 'disabled' : ''} style="text-align:left;padding:18px 20px;border-radius:16px;background:${bg};border:2.5px solid ${border};color:${color};font-family:Fredoka,sans-serif;font-weight:700;font-size:17px;cursor:${checked ? 'default' : 'pointer'};transition:transform .12s ease,background .2s ease;${shadow === 'true' ? 'box-shadow:4px 4px 0 ' + border + ';' : ''}">${o.label}</button>
+                  `;
+                }).join('')}
+              </div>
+              ${!this.state.hintShown ? `
+                <button id="show-hint-btn" style="background:none;border:2px dashed ${INK};color:${INK};font-family:Manrope,sans-serif;font-weight:800;font-size:12.5px;padding:8px 14px;border-radius:10px;cursor:pointer;margin-bottom:18px;">Need a hint?</button>
+              ` : `
+                <div style="background:${this._hexA(primary, 0.14)};color:${INK};border:2px solid ${INK};font-size:13px;font-weight:700;line-height:1.5;padding:12px 14px;border-radius:12px;margin-bottom:18px;">Look for a fraction that has the same value when you divide both numbers by 2.</div>
+              `}
+              <div style="margin-bottom:6px;">
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:#8a8578;font-weight:800;margin-bottom:6px;">
+                  <span>How sure are you?</span>
+                  <span>${['Not sure', 'A bit', 'Fairly sure', 'Very sure', 'Certain'][this.state.confidence - 1]}</span>
+                </div>
+                <input type="range" id="confidence-slider" min="1" max="5" value="${this.state.confidence}" aria-label="Confidence" style="width:100%;accent-color:${primary};" />
+              </div>
+            ` : isQ2 ? `
+              <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;color:${INK};line-height:1.4;margin-bottom:26px;">Tap the word to complete the sentence</div>
+              <div style="background:#fff;border:2.5px solid ${INK};border-radius:18px;padding:22px;margin-bottom:30px;font-family:'Manrope',sans-serif;font-weight:800;font-size:18px;color:${INK};line-height:1.7;">
+                To add fractions, you first need a common <span style="display:inline-block;min-width:80px;text-align:center;border-bottom:3px solid ${this.state.q2Checked ? (this.state.q2Correct ? EMERALD : CORAL) : primary};color:${INK};font-weight:800;">${this.state.q2Selected ? this.Q2_CHIPS.find(c => c.id === this.state.q2Selected)?.label : '_______'}</span>.
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:12px;">
+                ${this.Q2_CHIPS.map(c => {
+                  let bg = '#fff', border = INK, color = INK, shadow = 'true';
+                  if (checked) {
+                    if (c.correct) { bg = this._hexA(EMERALD, 0.16); color = INK; }
+                    else if (selectedId === c.id) { bg = this._hexA(CORAL, 0.16); color = INK; }
+                    else { bg = '#fff'; color = '#c9c2b3'; border = '#e4ddd0'; shadow = 'false'; }
+                  } else if (selectedId === c.id) {
+                    bg = this._hexA(primary, 0.14); color = INK;
+                  }
+                  return `
+                    <button type="button" class="q2-option" data-id="${c.id}" aria-pressed="${selectedId === c.id}" ${checked ? 'disabled' : ''} style="padding:10px 18px;border-radius:999px;background:${bg};border:2.5px solid ${border};color:${color};font-family:Fredoka,sans-serif;font-weight:700;font-size:14px;cursor:${checked ? 'default' : 'pointer'};${shadow === 'true' ? 'box-shadow:3px 3px 0 ' + border + ';' : ''}">${c.label}</button>
+                  `;
+                }).join('')}
+              </div>
+            ` : `
+              <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:20px;position:relative;">
+                <div style="font-size:52px;margin-bottom:8px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1);">◆</div>
+                <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;color:${INK};margin-bottom:4px;">Quest complete!</div>
+                <div style="font-size:14px;color:#8a8578;font-weight:700;margin-bottom:26px;">Fraction Addition</div>
+
+                <div style="display:flex;gap:12px;margin-bottom:24px;">
+                  <div style="background:#fff;border:2.5px solid ${INK};box-shadow:4px 4px 0 ${INK};border-radius:16px;padding:16px 22px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:96px;">
+                    <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:${primary};">${this.state.lessonXp}</div>
+                    <div style="font-size:11.5px;font-weight:800;color:#8a8578;text-transform:uppercase;letter-spacing:.04em;">Sparks</div>
+                  </div>
+                  <div style="background:#fff;border:2.5px solid ${INK};box-shadow:4px 4px 0 ${INK};border-radius:16px;padding:16px 22px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:96px;">
+                    <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:${INK};">${this.state.streakDays}</div>
+                    <div style="font-size:11.5px;font-weight:800;color:#8a8578;text-transform:uppercase;letter-spacing:.04em;">Momentum</div>
+                  </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:340px;">
+                  ${this.state.xpChips.map((chip, i) => `
+                    <div style="background:#fff;border:2px solid ${INK};color:${INK};font-weight:800;font-size:13.5px;padding:11px 16px;border-radius:12px;display:flex;justify-content:space-between;animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;animation-delay:${i * 100}ms;">
+                      <span>${chip.label}</span><span style="color:${primary};">${chip.xp}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `}
+          </div>
+
+          <div class="exercise-footer" style="max-width:600px;margin:auto auto 0;padding:0 24px 28px;width:100%;">
+            ${!feedbackShown ? `
+              <div>
+                ${!isComplete ? `
+                  <button type="button" id="check-answer-btn" ${selectedId ? '' : 'disabled'} style="width:100%;padding:16px;border:2.5px solid ${!selectedId ? '#e4ddd0' : INK};border-radius:16px;background:${!selectedId ? '#eee6d9' : primary};box-shadow:${!selectedId ? 'none' : '5px 5px 0 ' + INK};color:${!selectedId ? '#b8b0a0' : '#fff'};font-family:Fredoka,sans-serif;font-weight:700;font-size:15px;cursor:${!selectedId ? 'not-allowed' : 'pointer'};transition:transform .1s ease,box-shadow .1s ease;">${!selectedId ? 'Select an answer' : 'Check answer'}</button>
+                ` : `
+                  <button id="finish-lesson-btn" style="width:100%;padding:16px;border:2.5px solid ${INK};border-radius:16px;background:${primary};box-shadow:5px 5px 0 ${INK};color:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:15px;cursor:pointer;">Back to quest board</button>
+                `}
+              </div>
+            ` : `
+              <div role="status" aria-live="polite" style="max-width:520px;width:100%;background:${correct ? this._hexA(EMERALD, 0.14) : this._hexA(CORAL, 0.14)};border:2.5px solid ${INK};box-shadow:6px 6px 0 ${INK};border-radius:20px;padding:18px 20px;animation:cardUp .3s cubic-bezier(.22,1,.36,1);">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                  <span style="font-size:22px;">${correct ? '✓' : '💡'}</span>
+                  <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:17px;color:${INK};">${correct ? 'Nice work!' : 'Good try!'}</div>
+                </div>
+                <div style="font-size:13.5px;font-weight:700;color:${INK};line-height:1.5;margin-bottom:16px;">
+                  ${correct ? 'The diagnosis is getting stronger.' : 'That answer gives us a useful signal.'}
+                </div>
+                <button id="continue-feedback-btn" style="width:100%;padding:14px;border:2.5px solid ${INK};border-radius:12px;background:${primary};box-shadow:3px 3px 0 ${INK};color:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;">Continue</button>
+              </div>
+            `}
+          </div>
+        </div>
+
+        ${confettiPieces}
+      </div>
+    `;
+  }
+
+  renderTeacherOverview() {
+    const INK = this.INK;
+    return `
+      <div class="teacher-page" style="font-family:'Inter',sans-serif;min-height:100vh;background-color:#f8fafc;padding:28px 24px;">
+        <div style="max-width:1000px;margin:0 auto;">
+          <div style="margin-bottom:28px;">
+            <p style="color:#64748b;font-size:13px;margin:0 0 8px;">Teacher workspace · Class 8B</p>
+            <h1 style="color:#0f1226;font-size:32px;margin:0 0 6px;font-family:Manrope;">See the gaps. Choose the action.</h1>
+            <p style="color:#64748b;font-size:14px;margin:0;">A class-level view of the concepts your students are building right now.</p>
+          </div>
+
+          <div class="teacher-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">
+            <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:18px;">
+              <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:8px;">Students active</div>
+              <div style="font-size:28px;font-weight:700;color:#0f1226;">24</div>
+              <div style="font-size:12px;color:#94a3b8;margin-top:4px;">↑ 3 this week</div>
+            </div>
+            <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:18px;">
+              <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:8px;">Need a nudge</div>
+              <div style="font-size:28px;font-weight:700;color:#0f1226;">7</div>
+              <div style="font-size:12px;color:#94a3b8;margin-top:4px;">students</div>
+            </div>
+            <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:18px;">
+              <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:8px;">Class mastery</div>
+              <div style="font-size:28px;font-weight:700;color:#0f1226;">71%</div>
+              <div style="font-size:12px;color:#94a3b8;margin-top:4px;">↑ 8%</div>
+            </div>
+            <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:18px;">
+              <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:8px;">Signals this week</div>
+              <div style="font-size:28px;font-weight:700;color:#0f1226;">86</div>
+              <div style="font-size:12px;color:#94a3b8;margin-top:4px;">high quality</div>
+            </div>
+          </div>
+
+          <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:18px;margin-bottom:28px;">
+            <h3 style="color:#0f1226;font-size:16px;font-weight:700;margin:0 0 12px;font-family:Manrope;">Learning clusters</h3>
+            <p style="color:#64748b;font-size:13px;margin:0 0 16px;">Shared patterns, ready for a teacher decision.</p>
+            <div class="teacher-clusters" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+              ${this.CLUSTER_DEFS.map(c => `
+                <button class="teacher-cluster-btn" data-cluster-id="${c.id}" style="border:1px solid #e2e8f0;border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;text-align:left;background:#fff;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                    <span style="font-weight:700;font-size:12px;color:#2563eb;text-transform:uppercase;font-family:Inter;">${c.concept}</span>
+                    <span style="background:#e0f2fe;color:#2563eb;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;">${c.count}</span>
+                  </div>
+                  <div style="font-weight:700;font-size:13.5px;color:#0f1226;margin-bottom:6px;font-family:Manrope;">${c.title}</div>
+                  <div style="font-size:12px;color:#64748b;line-height:1.4;font-family:Inter;">${c.evidence}</div>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <button id="logout-btn" style="padding:12px 24px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;font-family:Inter;">Log out</button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderTeacherCluster() {
+    const INK = this.INK;
+    const clusterData = this.CLUSTER_DEFS.find(cluster => cluster.id === this.state.selectedClusterId) || this.CLUSTER_DEFS[0];
+    const selectedStudents = new Set(this.state.selectedStudentKeys);
+    return `
+      <div class="teacher-page" style="font-family:'Inter',sans-serif;min-height:100vh;background-color:#f8fafc;padding:28px 24px;">
+        <div style="max-width:1000px;margin:0 auto;">
+          <button id="back-to-overview-btn" style="background:none;border:none;color:#2563eb;font-weight:600;font-size:13px;cursor:pointer;margin-bottom:16px;font-family:Inter;">← Back to overview</button>
+
+          <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:22px;margin-bottom:28px;">
+            <div style="margin-bottom:12px;">
+              <span style="font-weight:700;font-size:11.5px;color:#2563eb;text-transform:uppercase;font-family:Inter;">${clusterData.concept}</span>
+            </div>
+            <h2 style="color:#0f1226;font-size:20px;margin:0 0 6px;font-weight:700;font-family:Manrope;">${clusterData.title}</h2>
+            <p style="color:#64748b;font-size:13px;margin:0;font-family:Inter;">${clusterData.count} students · ${clusterData.confidence} confidence</p>
+          </div>
+
+          <div class="teacher-detail-grid" style="display:grid;grid-template-columns:1.1fr 1fr;gap:16px;">
+            <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:18px;display:flex;flex-direction:column;gap:12px;">
+              <div style="font-weight:700;font-size:13.5px;color:#334155;margin-bottom:8px;font-family:Inter;">Students</div>
+              ${this.STUDENTS.slice(0, 6).map((s, i) => `
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9;${i === 5 ? 'border-bottom:none;' : ''}">
+                  <input type="checkbox" data-student-key="${s.key}" aria-label="Select ${s.name}" ${selectedStudents.has(s.key) ? 'checked' : ''} style="width:18px;height:18px;" />
+                  <span style="font-weight:600;font-size:13px;color:#334155;flex:1;font-family:Inter;">${s.name}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:18px;display:flex;flex-direction:column;gap:14px;">
+              <div>
+                <label for="intervention-note" style="display:block;font-weight:700;font-size:13.5px;color:#334155;margin-bottom:8px;">Suggested intervention</label>
+                <textarea id="intervention-note" aria-label="Suggested intervention" style="width:100%;min-height:100px;border:1px solid #dbe3f0;border-radius:8px;padding:10px;font-family:Inter;font-size:13px;color:#334155;resize:vertical;">${this.escapeHtml(this.state.teacherNote)}</textarea>
+              </div>
+              ${this.state.assignmentMessage ? `<div role="status" aria-live="polite" style="color:${this.state.assignmentMessage.startsWith('Select') ? '#b91c1c' : '#166534'};font-size:12.5px;font-weight:700;">${this.escapeHtml(this.state.assignmentMessage)}</div>` : ''}
+              <button type="button" id="assign-intervention-btn" style="padding:12px 20px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;font-family:Inter;">Assign follow-up</button>
+            </div>
+          </div>
+
+          <button id="logout-btn" style="margin-top:28px;padding:12px 24px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;font-family:Inter;">Log out</button>
+        </div>
+      </div>
+    `;
+  }
+
+  attachEventListeners() {
+    // Auth view
+    document.getElementById('auth-login-btn')?.addEventListener('click', this.handleAuthLogin);
+    document.getElementById('auth-signup-btn')?.addEventListener('click', this.handleAuthSignup);
+    document.getElementById('auth-student-btn')?.addEventListener('click', this.handleAuthRoleStudent);
+    document.getElementById('auth-teacher-btn')?.addEventListener('click', this.handleAuthRoleTeacher);
+    document.getElementById('auth-form')?.addEventListener('submit', this.handleSubmitAuth);
+
+    // General
+    document.getElementById('logout-btn')?.addEventListener('click', this.handleLogout);
+
+    // Student view
+    document.querySelectorAll('[data-node-id]').forEach(node => {
+      node.addEventListener('click', (e) => {
+        this.handleNodeClick(e.currentTarget.dataset.nodeId);
+      });
+      node.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.handleNodeClick(e.currentTarget.dataset.nodeId);
+        }
+      });
+    });
+
+    document.getElementById('start-exercise-btn')?.addEventListener('click', this.handleStartExercise);
+    document.getElementById('quit-exercise-btn')?.addEventListener('click', this.handleQuitExercise);
+    document.getElementById('show-hint-btn')?.addEventListener('click', this.handleShowHint);
+    document.getElementById('confidence-slider')?.addEventListener('input', (e) => {
+      this.handleConfidenceChange(e.target.value);
+    });
+
+    document.querySelectorAll('.q1-option').forEach(btn => {
+      btn.addEventListener('click', () => this.handleSelectQ1(btn.dataset.id));
+    });
+
+    document.querySelectorAll('.q2-option').forEach(btn => {
+      btn.addEventListener('click', () => this.handleSelectQ2(btn.dataset.id));
+    });
+
+    document.getElementById('check-answer-btn')?.addEventListener('click', this.handleCheckAnswer);
+    document.getElementById('continue-feedback-btn')?.addEventListener('click', this.handleContinueFeedback);
+    document.getElementById('finish-lesson-btn')?.addEventListener('click', this.handleFinishLesson);
+
+    // Popover
+    document.getElementById('popover-backdrop')?.addEventListener('click', (e) => {
+      if (e.target.id === 'popover-backdrop') this.handleClosePopover();
+    });
+    const questDialog = document.getElementById('quest-dialog');
+    if (questDialog) {
+      questDialog.focus();
+      questDialog.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') this.handleClosePopover();
+      });
+    }
+    document.getElementById('popover-start-btn')?.addEventListener('click', this.handleStartExercise);
+    document.getElementById('popover-close-btn')?.addEventListener('click', this.handleClosePopover);
+
+    // Graph
+    const graphContainer = document.getElementById('graph-container');
+    if (graphContainer) {
+      graphContainer.addEventListener('mousemove', this.handleGraphMove);
+      graphContainer.addEventListener('mouseleave', this.handleGraphLeave);
+    }
+
+    // Teacher view
+    document.querySelectorAll('.teacher-cluster-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.handleTeacherCluster(btn.dataset.clusterId);
+      });
+    });
+
+    document.querySelectorAll('[data-student-key]').forEach(input => {
+      input.addEventListener('change', (e) => {
+        this.handleTeacherStudentToggle(e.target.dataset.studentKey, e.target.checked);
+      });
+    });
+
+    document.getElementById('back-to-overview-btn')?.addEventListener('click', this.handleBackToOverview);
+    document.getElementById('assign-intervention-btn')?.addEventListener('click', this.handleAssignIntervention);
+  }
 }
 
-function generatedStudentHome() {
-  const profile = state.childProfile || { childName: 'Maya', favorite: 'Space explorer', theme: 'space' };
-  const persona = currentPersona();
-  const name = escapeHtml(profile.childName || 'Maya');
-  const favorite = escapeHtml(profile.favorite || persona.label);
-  const theme = persona.accent;
-  const intros = { space: ['Mission control', 'Plot your next learning move', 'Your learning data is arranged like a mission board.'], ocean: ['Dive dashboard', 'Explore your learning current', 'Your strongest signal leads the flow from one section to the next.'], jungle: ['Adventure trail', 'Choose your next discovery', 'Your evidence becomes landmarks on a trail you can follow.'], mystery: ['Case file 08B', 'Investigate your next clue', 'The most important evidence is placed first, like a real case board.'], rainbow: ['Creative studio', 'Build your next learning combo', 'Your practice space is arranged as a flexible creative canvas.'] };
-  const copy = intros[theme] || intros.space;
-  return `<div class="adaptive-home adaptive-${theme} generated-layout"><div class="view-header personalized-header adaptive-hero"><div><p class="eyebrow">${persona.emoji} ${copy[0]} · Tuesday, October 14 · Grade 8 mathematics</p><h1>${copy[1]}, ${name}</h1><p class="lede">${persona.intro} ${copy[2]}</p></div><div class="persona-banner"><span class="persona-orb">${persona.emoji}</span><div><span>Generated for ${name}</span><strong>${favorite}</strong><button data-action="open-personalize">Regenerate this space ${icons.arrow}</button></div></div></div><div class="adaptive-welcome"><span class="welcome-icon">${persona.emoji}</span><div><strong>${favorite} layout generated</strong><p>Same learning evidence, reorganized into a ${theme} experience.</p></div><span class="recipe-pill">${theme} layout</span></div>${metrics()}${generatedRecipeLayout(theme)}<div class="demo-note">${icons.info} Synthetic demo data · ${favorite} layout active · Learning evidence stays the same</div></div>`;
-}
-
-function studentHome() { return generatedStudentHome(); }
-
-function studentSecondary() { const title = state.view === 'map' ? 'My learning map' : state.view === 'practice' ? 'Practice queue' : 'Activity history'; const body = state.view === 'map' ? `<div class="panel"><div class="panel-title">Concepts move when evidence changes them</div><p class="panel-subtitle">Open Overview to see the current recommendation. This map keeps the same neutral states across the student and teacher views.</p><div style="margin-top:20px">${mapPanel()}</div></div>` : state.view === 'practice' ? `<div class="panel"><div class="panel-title">A short, purposeful queue</div><p class="panel-subtitle">Each question earns its place by targeting an uncertainty in your map.</p><div style="margin-top:20px">${nextCard()}</div></div>` : `<div class="panel"><div class="panel-title">Your practice trail</div><p class="panel-subtitle">The evidence behind your current map.</p><div style="margin-top:18px">${activityPanel()}</div></div>`; return `<div class="view-header"><div><p class="eyebrow">Student workspace</p><h1>${title}</h1><p class="lede">${state.view === 'map' ? 'See the connections between concepts, prerequisites, and progress.' : state.view === 'practice' ? 'Focused practice, selected for a reason.' : 'A clear record of the signals your answers create.'}</p></div><div class="header-actions"><button class="button primary" data-action="open-practice">Start a question ${icons.arrow}</button></div></div>${body}`; }
-
-const clusters = { 'cluster-1': { name: 'Unscaled numerator', count: 4, tag: 'Blocked', tagClass: 'rose', width: 78, concept: 'Adding fractions with unlike denominators', students: ['MP','JL','SK','TR'], signal: 'Students add the numerator before scaling the fraction to a shared denominator.', action: 'Use a visual equivalence warm-up, then assign 3 symbolic checks.', evidence: [['MP','2/3 + 1/6 = 3/9','Repeats numerator addition'],['JL','3/4 + 1/8 = 4/12','Denominator changed late'],['SK','1/2 + 1/6 = 2/8','Same procedure, lower confidence']] }, 'cluster-2': { name: 'Denominator confusion', count: 3, tag: 'Developing', tagClass: 'amber', width: 53, concept: 'Common denominator selection', students: ['AV','RD','NM'], signal: 'Students find a common multiple but do not consistently convert both fractions.', action: 'Pair number-line representation with a one-step conversion set.', evidence: [['AV','2/5 + 1/10 = 3/15','Correct target, missed scale'],['RD','1/3 + 1/6 = 2/9','Mixed representation']] }, 'cluster-3': { name: 'Strong visual transfer', count: 6, tag: 'Improving', tagClass: 'mint', width: 32, concept: 'Equivalent fractions across representations', students: ['EB','KA','LS','TW','JP','OM'], signal: 'Students who used the area model are transferring the idea to symbols.', action: 'Offer a challenge set with word problems and reduced scaffolding.', evidence: [['EB','4/8 = 1/2','Explained the reduction'],['KA','3/6 = 1/2','Confident and correct']] } };
-
-function teacherOverview() { const c = clusters[state.selectedCluster]; return `<div class="view-header"><div><p class="eyebrow">Teacher workspace · Class 8B</p><h1>See the gaps. Choose the action.</h1><p class="lede">A class-level view of the concepts your students are building right now.</p></div><div class="header-actions"><button class="button" data-action="upload">${icons.upload} Import dataset</button><button class="button primary" data-action="assign">Assign follow-up ${icons.arrow}</button></div></div><div class="metric-grid"><div class="metric-card blue"><div class="metric-top"><span class="metric-icon blue">${icons.users}</span> Students active</div><div class="metric-value">24 <span class="metric-change">↑ 3 this week</span></div></div><div class="metric-card rose"><div class="metric-top"><span class="metric-icon amber">${icons.flag}</span> Need a nudge</div><div class="metric-value">7 <span style="font-size:12px;font-family:inherit;letter-spacing:0;color:var(--muted)">students</span></div></div><div class="metric-card green"><div class="metric-top"><span class="metric-icon green">${icons.chart}</span> Class mastery</div><div class="metric-value">71<span style="font-size:15px;letter-spacing:-.03em">%</span><span class="metric-change">↑ 8%</span></div></div><div class="metric-card lilac"><div class="metric-top"><span class="metric-icon lilac">${icons.spark}</span> Signals this week</div><div class="metric-value">86 <span class="metric-change">high quality</span></div></div></div><div class="teacher-grid"><section class="panel"><div class="panel-head"><div><div class="panel-title">Concept heatmap</div><p class="panel-subtitle">The color shows where a cluster-level action could help most.</p></div><button class="text-link" data-action="filter">Last 14 days ${icons.chevron}</button></div><table class="heatmap"><thead><tr><th style="width:31%">Concept</th><th>Mastered</th><th>Improving</th><th>Developing</th><th>Blocked</th></tr></thead><tbody><tr><td>Equivalent fractions</td><td><span class="heat-cell low">18</span></td><td><span class="heat-cell low">4</span></td><td><span class="heat-cell med">2</span></td><td><span class="heat-cell low">0</span></td></tr><tr><td>Common denominators</td><td><span class="heat-cell low">12</span></td><td><span class="heat-cell low">6</span></td><td><span class="heat-cell med">4</span></td><td><span class="heat-cell med">2</span></td></tr><tr><td>Fraction addition</td><td><span class="heat-cell med">9</span></td><td><span class="heat-cell med">5</span></td><td><span class="heat-cell high">6</span></td><td><span class="heat-cell high">4</span></td></tr><tr><td>Fraction word problems</td><td><span class="heat-cell med">7</span></td><td><span class="heat-cell low">5</span></td><td><span class="heat-cell med">7</span></td><td><span class="heat-cell med">3</span></td></tr></tbody></table><div class="confidence-box" style="margin-top:18px;background:var(--blue-soft);border-color:#dce8ff">${icons.info}<div><strong style="color:var(--ink)">Read the heatmap with evidence</strong><p style="color:#5471a0">The blocked count is only actionable when the associated answer pattern clears the confidence threshold.</p></div></div></section><section class="panel"><div class="panel-head"><div><div class="panel-title">Learning clusters</div><p class="panel-subtitle">Shared patterns, ready for a teacher decision.</p></div><span class="tag blue">3 active</span></div><div class="cluster-list">${Object.entries(clusters).map(([id, cluster]) => `<button class="cluster-card ${state.selectedCluster === id ? 'selected' : ''}" data-action="select-cluster" data-cluster="${id}"><div class="cluster-top"><div><div class="cluster-name">${cluster.name}</div><div class="cluster-count">${cluster.count} students · ${cluster.concept}</div></div><span class="tag ${cluster.tagClass}">${cluster.tag}</span></div><div class="cluster-bar"><span style="width:${cluster.width}%;background:${cluster.tagClass === 'rose' ? 'var(--rose)' : cluster.tagClass === 'amber' ? 'var(--amber)' : 'var(--mint)'}"></span></div></button>`).join('')}</div></section></div><section class="panel evidence-panel"><div class="panel-head"><div><p class="eyebrow" style="margin-bottom:5px">Selected cluster · ${c.count} students</p><div class="panel-title">${c.name}</div><p class="panel-subtitle">${c.concept} · Diagnosis confidence <strong style="color:var(--mint)">0.88</strong> · 11 evidence items</p></div><span class="tag ${c.tagClass}">${c.tag}</span></div><div class="evidence-layout"><div><div class="signal-box"><div class="signal-label">Shared pattern</div><strong>${c.signal}</strong><div class="student-chips">${c.students.map(s => `<span class="student-chip"><span class="mini-avatar">${s}</span>${s === 'MP' ? 'Maya' : 'Student ' + s}</span>`).join('')}</div></div><div class="recommendation"><strong>${icons.spark} Suggested intervention</strong><p>${c.action}</p></div><button class="button dark full" data-action="assign">${state.interventionAssigned ? icons.check + ' Follow-up assigned' : 'Review and assign follow-up ' + icons.arrow}</button></div><div><div class="signal-label">Representative answer evidence</div><div class="evidence-list">${c.evidence.map(([student, answer, note], i) => `<div class="evidence-item"><span class="evidence-marker">${i + 1}</span><p><strong>${student} · ${answer}</strong>${note}</p><span class="evidence-score">verified</span></div>`).join('')}</div></div></div></section><div class="demo-note">${icons.info} Synthetic class dataset · Teacher can edit or override every suggested action · No stigmatizing labels are shown to students</div>`; }
-
-function teacherSecondary() { return `<div class="view-header"><div><p class="eyebrow">Teacher workspace</p><h1>${state.view === 'clusters' ? 'Learning clusters' : state.view === 'insights' ? 'Evaluation & insights' : 'Students'}</h1><p class="lede">${state.view === 'clusters' ? 'Open a shared pattern to see the evidence and decide what to do.' : state.view === 'insights' ? 'Honest metrics from the deterministic demo engine.' : 'A calm, evidence-first roster view for individual follow-up.'}</p></div><div class="header-actions"><button class="button primary" data-action="navigate" data-view="overview">Back to overview ${icons.arrow}</button></div></div>${state.view === 'clusters' ? `<div class="teacher-grid"><section class="panel"><div class="panel-title">All active clusters</div><p class="panel-subtitle">Click a cluster on the overview to inspect its evidence and recommended action.</p><div style="margin-top:18px">${Object.entries(clusters).map(([id,c]) => `<button class="cluster-card" style="margin-bottom:9px" data-action="select-cluster" data-cluster="${id}"><div class="cluster-top"><div><div class="cluster-name">${c.name}</div><div class="cluster-count">${c.count} students · ${c.concept}</div></div><span class="tag ${c.tagClass}">${c.tag}</span></div></button>`).join('')}</div></section><section class="panel"><div class="panel-title">What makes a cluster trustworthy?</div><p class="panel-subtitle">Every recommendation carries its evidence with it.</p><div style="margin-top:20px">${progressPanel()}</div></section></div>` : state.view === 'insights' ? `<div class="grid-2"><section class="panel"><div class="panel-title">Evaluation snapshot</div><p class="panel-subtitle">Synthetic hold-out run · deterministic fallback</p><div class="progress-row" style="margin-top:22px"><div class="progress-label"><span>Known-bug recognition</span><strong>92%</strong></div><div class="progress-track"><div class="progress-fill fill-mint" style="width:92%"></div></div></div><div class="progress-row"><div class="progress-label"><span>Next-answer prediction</span><strong>78%</strong></div><div class="progress-track"><div class="progress-fill fill-blue" style="width:78%"></div></div></div><div class="progress-row"><div class="progress-label"><span>Confident false positives</span><strong style="color:var(--mint)">3%</strong></div><div class="progress-track"><div class="progress-fill fill-lilac" style="width:3%"></div></div></div></section><section class="panel"><div class="panel-title">Safety posture</div><p class="panel-subtitle">The system fails conservatively when evidence is sparse or contradictory.</p><div class="confidence-box" style="margin-top:22px">${icons.info}<div><strong>Abstention is working</strong><p>Mixed histories remain “unknown” until a diagnostic question provides enough signal.</p></div></div></section></div>` : `<section class="panel"><div class="panel-title">Class 8B roster</div><p class="panel-subtitle">A student detail view can be opened without changing the class-level story.</p><table class="heatmap" style="margin-top:18px"><thead><tr><th>Student</th><th>Current focus</th><th>State</th><th>Last signal</th></tr></thead><tbody>${[['Maya Patel','Unscaled numerator','Blocked','2h ago'],['Jordan Lee','Common denominators','Developing','Today'],['Aisha Verma','Equivalent fractions','Improving','Yesterday'],['Ravi Desai','Fraction addition','Mastered','2 days ago']].map(([a,b,c,d]) => `<tr><td>${a}</td><td>${b}</td><td><span class="tag ${c==='Blocked'?'rose':c==='Developing'?'amber':c==='Improving'?'mint':'blue'}">${c}</span></td><td>${d}</td></tr>`).join('')}</tbody></table></section>`}`; }
-
-function personalizationModal() { if (!state.parentSetupOpen) return ''; const profile = state.childProfile || {}; const selected = state.draftTheme || profile.theme || 'space'; return `<div class="modal-backdrop persona-backdrop"><div class="modal persona-modal" onclick="event.stopPropagation()"><div class="modal-head"><div><div class="modal-kicker">Parent setup · Child login</div><div class="panel-title">Generate their learning space</div></div>${profile.childName ? `<button class="close-button" data-action="close-personalize">${icons.close}</button>` : ''}</div><div class="modal-body"><div class="persona-welcome"><span class="persona-welcome-orb">✨</span><div><h2>Tell LearnLoop what ${escapeHtml(profile.childName || 'your child')} is into</h2><p>Their answer becomes the design brief. LearnLoop generates the interface structure, visual language, labels, and learning flow around it while keeping the learning evidence unchanged.</p></div></div><label class="form-label" for="parent-child-name">Child's name</label><input class="form-input" id="parent-child-name" value="${escapeHtml(state.draftName || profile.childName || '')}" placeholder="e.g. Maya" autocomplete="off"/><label class="form-label" for="parent-child-favorite">What do they love? <span class="input-hint">This drives the regeneration</span></label><input class="form-input" id="parent-child-favorite" value="${escapeHtml(state.draftFavorite || profile.favorite || '')}" placeholder="e.g. Rick and Morty, football, dinosaurs, drawing" autocomplete="off"/><div class="form-label">Optional visual direction</div><div class="theme-grid">${Object.entries(personaThemes).map(([key, theme]) => `<button class="theme-choice ${selected === key ? 'selected' : ''}" data-action="pick-theme" data-theme-choice="${key}"><span>${theme.emoji}</span><strong>${theme.label}</strong><small>${key === 'space' ? 'Missions and planets' : key === 'ocean' ? 'Calm waves and creatures' : key === 'jungle' ? 'Adventure and discovery' : key === 'mystery' ? 'Clues and case files' : 'Colorful creative energy'}</small></button>`).join('')}</div><div class="persona-note">${icons.info}<span>The text answer is the primary signal. The optional style only guides the fallback when the description is broad.</span></div><button class="button primary full" data-action="save-persona">Generate ${escapeHtml(state.draftName || profile.childName || 'child')}’s interface ${icons.arrow}</button></div></div></div>`; }
-function renderModal() { if (!state.modal) return ''; return `<div class="modal-backdrop" data-action="close-modal"><div class="modal" onclick="event.stopPropagation()"><div class="modal-head"><div><div class="modal-kicker">Focused practice · Question 1 of 3</div><div class="panel-title">One useful signal at a time</div></div><button class="close-button" data-action="close-modal">${icons.close}</button></div><div class="modal-body">${state.submitted ? submittedState() : questionState()}</div></div></div>`; }
-function questionState() { return `<h2>What is <span style="color:var(--blue)">2/3 + 1/6</span>?</h2><div class="fraction-question">2/3&nbsp;&nbsp; + &nbsp;&nbsp;1/6&nbsp;&nbsp; = &nbsp;&nbsp;?</div><input class="answer-input" id="answer" value="${state.answer}" placeholder="Type your answer, like 5/6" autocomplete="off"/><div class="confidence-title">How confident are you?</div><div class="confidence-options">${['Not sure','Somewhat sure','Very sure'].map(x => `<button class="confidence-option ${state.confidence === x ? 'active' : ''}" data-action="confidence" data-confidence="${x}">${x}</button>`).join('')}</div><div class="modal-actions"><button class="hint-button" data-action="hint">${icons.light} Show me a hint</button><button class="button primary" data-action="submit-answer">Check answer ${icons.arrow}</button></div>`; }
-function submittedState() { const correct = state.answer.replace(/\s/g,'') === '5/6'; return `<div class="feedback ${correct ? 'correct' : 'wrong'}">${correct ? icons.check : icons.info}<div><strong>${correct ? 'Nice work — the diagnosis is getting stronger.' : 'That answer gives us a useful signal.'}</strong><p>${correct ? 'You found a common denominator and scaled the numerator. The “common denominators” node is moving toward mastered.' : 'The denominator needs to match before you add. LearnLoop will keep the pattern as developing until we have another check.'}</p></div></div><div class="recommendation"><strong>${icons.spark} Next question selected for a reason</strong><p>${correct ? 'Try a visual-to-symbol transfer next, so we can test whether the idea holds across representations.' : 'Let’s use an equivalent-fractions warm-up, then re-check this exact step.'}</p></div><div class="modal-actions"><span class="tag ${correct ? 'mint' : 'amber'}">${correct ? 'High fit · 0.94' : 'Candidate · 0.61'}</span><button class="button primary" data-action="close-modal">Continue ${icons.arrow}</button></div>`; }
-
-function appView() { const content = state.role === 'student' ? (state.view === 'home' ? studentHome() : studentSecondary()) : (state.view === 'overview' ? teacherOverview() : teacherSecondary()); const persona = currentPersona(); return `<div class="app-shell ${state.role === 'student' && state.childProfile ? 'personalized-shell' : ''}" data-theme="${persona.accent}">${topbar()}<div class="workspace">${sidebar()}<main class="main">${content}</main></div>${renderModal()}${personalizationModal()}${state.toast ? `<div class="toast">${icons.check} ${state.toast}</div>` : ''}</div>`; }
-function render() { document.querySelector('#app').innerHTML = appView(); bind(); }
-function bind() { document.querySelectorAll('[data-action]').forEach(el => el.addEventListener('click', event => { const action = el.dataset.action; if (action === 'role-student') setState({ role:'student', view:'home' }); if (action === 'role-teacher') setState({ role:'teacher', view:'overview' }); if (action === 'navigate') setState({ view: el.dataset.view }); if (action === 'open-practice') setState({ modal:true, submitted:false, answer:'' }); if (action === 'close-modal') setState({ modal:false }); if (action === 'confidence') setState({ confidence:el.dataset.confidence }); if (action === 'hint') notify('Hint: rename 2/3 as a fraction with denominator 6.'); if (action === 'submit-answer') { const answer = document.querySelector('#answer')?.value || ''; setState({ answer, submitted:true }); } if (action === 'select-cluster') setState({ selectedCluster:el.dataset.cluster, view:'overview' }); if (action === 'assign') { setState({ interventionAssigned:true }); notify('Follow-up saved for the selected cluster.'); } if (action === 'upload') notify('Demo import ready — synthetic dataset is already loaded.'); if (action === 'filter') notify('Heatmap is showing the last 14 days.'); if (action === 'reset') { localStorage.removeItem('learnloop-demo'); state={...defaultState}; render(); } })); }
-function bind() { document.querySelectorAll('[data-action]').forEach(el => el.addEventListener('click', event => { const action = el.dataset.action; if (action === 'role-student') setState({ role:'student', view:'home' }); if (action === 'role-teacher') setState({ role:'teacher', view:'overview' }); if (action === 'navigate') setState({ view: el.dataset.view }); if (action === 'open-practice') setState({ modal:true, submitted:false, answer:'' }); if (action === 'close-modal') setState({ modal:false }); if (action === 'open-personalize') setState({ parentSetupOpen:true, draftName:state.childProfile?.childName || '', draftFavorite:state.childProfile?.favorite || '', draftTheme:state.childProfile?.theme || 'space' }); if (action === 'close-personalize') setState({ parentSetupOpen:false }); if (action === 'pick-theme') { setState({ draftTheme:el.dataset.themeChoice, draftName:document.querySelector('#parent-child-name')?.value || state.draftName, draftFavorite:document.querySelector('#parent-child-favorite')?.value || state.draftFavorite }); } if (action === 'save-persona') { const childName = document.querySelector('#parent-child-name')?.value.trim() || 'Maya'; const favorite = document.querySelector('#parent-child-favorite')?.value.trim() || currentPersona().label; const generatedTheme = inferTheme(favorite, state.draftTheme || 'space'); setState({ childProfile:{ childName, favorite, theme:generatedTheme, generatedFrom:'child-preference' }, parentSetupOpen:false, draftName:'', draftFavorite:'' }); notify(`Interface regenerated for ${favorite}.`); } if (action === 'confidence') setState({ confidence:el.dataset.confidence }); if (action === 'hint') notify('Hint: rename 2/3 as a fraction with denominator 6.'); if (action === 'submit-answer') { const answer = document.querySelector('#answer')?.value || ''; setState({ answer, submitted:true }); } if (action === 'select-cluster') setState({ selectedCluster:el.dataset.cluster, view:'overview' }); if (action === 'assign') { setState({ interventionAssigned:true }); notify('Follow-up saved for the selected cluster.'); } if (action === 'upload') notify('Demo import ready — synthetic dataset is already loaded.'); if (action === 'filter') notify('Heatmap is showing the last 14 days.'); if (action === 'reset') { localStorage.removeItem('learnloop-demo'); state={...defaultState}; render(); } })); }
-render();
+// Initialize and render
+const app = new LearnLoop();
+app.render();
