@@ -2,6 +2,21 @@
 
 LearnLoop is an adaptive upper-high-school mathematics platform. The repository contains the browser experience plus a deployable API for authentication, persistent learning evidence, adaptive practice, generated follow-up questions, and teacher diagnostics.
 
+## Repository and AI-assisted development
+
+**Code repository:** https://github.com/idklol22/NierClassifiers
+
+This entire codebase was developed phase by phase with Codex running on GPT-5.6, together with the Terra and Luna agents. The agents were used as implementation and review collaborators: requirements and outcomes were directed by the project author, while the agents generated, connected, tested, and refined the code and documentation in each phase.
+
+| Phase | Codex, GPT-5.6, Terra, and Luna contribution | Delivered work |
+| --- | --- | --- |
+| 1. Product foundation | Translated the learning-platform requirements into the application structure, data model, question format, and interface plan. | LearnLoop browser application, curated mathematics question bank, and adaptive-learning foundations. |
+| 2. Learning experience | Implemented and iterated on the student and teacher flows, including practice sessions, answer feedback, mastery evidence, and diagnostics. | Responsive frontend, adaptive question selection, misconception tracking, and teacher views. |
+| 3. Production backend | Built and connected the API, database repository layer, authentication, authorization, validation, and deployment configuration. | Express/Postgres backend, JWT sessions, password hashing, API keys, seed tooling, and Vercel support. |
+| 4. AI insights and hardening | Added the optional AI insight workflow, reviewed failure cases, improved fallbacks, and aligned operational documentation with the implementation. | Server-side Hugging Face insight endpoints, deterministic fallbacks, OpenAPI documentation, deployment guidance, and local run instructions. |
+
+Codex and GPT-5.6 were used throughout the phases for implementation, debugging, code review, integration, and documentation. Terra and Luna were used alongside them to iterate on features, identify gaps, and strengthen the final end-to-end product.
+
 ## Run locally
 
 Install dependencies, then start the API:
