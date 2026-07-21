@@ -90,40 +90,68 @@ function compactClassData({ classSummary, students }) {
   };
 }
 
-function extractOutputText(response) {
-  if (typeof response.output_text === 'string') return response.output_text;
-  return (response.output || []).filter(item => item.type === 'message').flatMap(item => item.content || []).filter(item => item.type === 'output_text').map(item => item.text).join('');
+function parseJsonOutput(value) {
+  const text = String(value).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+  return JSON.parse(text);
 }
 
-async function callOpenAI({ kind, data }) {
-  if (process.env.AI_INSIGHTS_ENABLED === 'false' || !process.env.OPENAI_API_KEY) return null;
-  const model = process.env.OPENAI_MODEL || 'gpt-5.6-luna';
-  const instructions = `You are LearnLoop's educational insights assistant. Produce supportive, specific maths learning guidance from measured answer data only. Do not diagnose disabilities or personality traits. Do not shame or rank students. Mention uncertainty when evidence is sparse. For a student, speak directly to the student. For a teacher, suggest concrete reteaching and practice actions. Return only JSON matching the provided schema.`;
-  const body = {
-    model,
-    store: false,
-    reasoning: { effort: 'low' },
-    instructions,
-    input: `Insight type: ${kind}\nObserved learning data:\n${JSON.stringify(data)}`,
-    max_output_tokens: 900,
-    text: { format: { type: 'json_schema', name: 'learnloop_insights', strict: true, schema: responseSchema } }
-  };
-  const response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(30000) });
-  if (!response.ok) throw new Error(`OpenAI insight request failed with status ${response.status}.`);
+let modelCache = { expiresAt: 0, models: [] };
+
+function modelBase(model) { return String(model || '').split(':')[0]; }
+function modelIsFree(model) {
+  if (model?.is_free === true || model?.isFree === true) return true;
+  const serialized = JSON.stringify(model || {}).toLowerCase();
+  return serialized.includes('"is_free":true') || serialized.includes('"isfree":true') || serialized.includes('"price":0');
+}
+async function discoverModels(token) {
+  if (modelCache.expiresAt > Date.now()) return modelCache.models;
+  const response = await fetch('https://router.huggingface.co/v1/models', { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(5000) });
+  if (!response.ok) throw new Error(`Hugging Face model discovery failed with status ${response.status}.`);
   const payload = await response.json();
-  const output = extractOutputText(payload);
-  if (!output) throw new Error('OpenAI returned no insight text.');
-  return { insight: insightShape.parse(JSON.parse(output)), model, responseId: payload.id };
+  modelCache = { expiresAt: Date.now() + 10 * 60 * 1000, models: Array.isArray(payload.data) ? payload.data : [] };
+  return modelCache.models;
+}
+async function chooseModels(token) {
+  const configured = [process.env.HF_FREE_MODEL, process.env.HF_MODEL || 'openai/gpt-oss-20b:cheapest', ...(process.env.HF_FALLBACK_MODELS || 'HuggingFaceTB/SmolLM3-3B:cheapest').split(',')].map(value => String(value || '').trim()).filter(Boolean);
+  let available = [];
+  try { available = await discoverModels(token); } catch { /* model discovery is optional; the request loop below remains safe */ }
+  const free = available.filter(modelIsFree).map(model => model.id || model.name).filter(Boolean);
+  const availableConfigured = configured.filter(candidate => !available.length || available.some(model => modelBase(model.id || model.name) === modelBase(candidate)));
+  const candidates = [...(process.env.HF_PREFER_FREE !== 'false' ? free : []), ...availableConfigured, ...configured];
+  const unique = [...new Set(candidates)];
+  if (process.env.HF_FREE_ONLY === 'true') return unique.filter(candidate => free.includes(candidate) || free.some(model => modelBase(model) === modelBase(candidate)));
+  return unique;
+}
+function messageText(message) { return Array.isArray(message) ? message.map(item => item.text || item.content || '').join('') : String(message || ''); }
+
+async function callHuggingFace({ kind, data }) {
+  const token = process.env.HF_TOKEN || process.env.HF_API_KEY;
+  if (process.env.AI_INSIGHTS_ENABLED === 'false' || !token) return null;
+  const instructions = `You are LearnLoop's educational insights assistant. Produce supportive, specific maths learning guidance from measured answer data only. Do not diagnose disabilities or personality traits. Do not shame or rank students. Mention uncertainty when evidence is sparse. For a student, speak directly to the student. For a teacher, suggest concrete reteaching and practice actions. Return only JSON matching the provided schema.`;
+  const models = await chooseModels(token);
+  let lastError = new Error('No Hugging Face model is currently available.');
+  for (const model of models) {
+    try {
+      const body = { model, messages: [{ role: 'system', content: `${instructions} The required JSON shape is: ${JSON.stringify(responseSchema)}` }, { role: 'user', content: `Insight type: ${kind}\nObserved learning data:\n${JSON.stringify(data)}` }], max_tokens: 900, temperature: 0.2 };
+      const response = await fetch('https://router.huggingface.co/v1/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(30000) });
+      if (!response.ok) { lastError = new Error(`Hugging Face model ${model} returned status ${response.status}.`); continue; }
+      const payload = await response.json();
+      const output = messageText(payload.choices?.[0]?.message?.content);
+      if (!output) { lastError = new Error(`Hugging Face model ${model} returned no insight text.`); continue; }
+      return { insight: insightShape.parse(parseJsonOutput(output)), model, responseId: payload.id };
+    } catch (error) { lastError = error; }
+  }
+  throw lastError;
 }
 
 async function generateStudentInsight(input) {
   const fallback = studentFallback(input);
-  try { const ai = await callOpenAI({ kind: 'student', data: compactStudentData(input) }); return { ...fallback, ...(ai?.insight || {}), source: ai ? 'openai' : 'deterministic', model: ai?.model || null }; } catch (error) { console.error(error.message); return { ...fallback, source: 'deterministic-fallback', model: null }; }
+  try { const ai = await callHuggingFace({ kind: 'student', data: compactStudentData(input) }); return { ...fallback, ...(ai?.insight || {}), source: ai ? 'huggingface' : 'deterministic', providerStatus: ai ? 'available' : 'local', message: ai ? 'AI learning insight generated from your measured answers.' : 'Using built-in learning insights from your measured answers.', model: ai?.model || null }; } catch (error) { if (process.env.AI_INSIGHTS_DEBUG === 'true') console.warn(`Student insight fallback: ${error.message}`); return { ...fallback, source: 'deterministic-fallback', providerStatus: 'fallback', message: 'AI insights are temporarily unavailable, so LearnLoop is showing built-in insights from your measured answers.', model: null }; }
 }
 
 async function generateTeacherInsight(input) {
   const fallback = teacherFallback(input);
-  try { const ai = await callOpenAI({ kind: 'teacher', data: compactClassData(input) }); return { ...fallback, ...(ai?.insight || {}), source: ai ? 'openai' : 'deterministic', model: ai?.model || null }; } catch (error) { console.error(error.message); return { ...fallback, source: 'deterministic-fallback', model: null }; }
+  try { const ai = await callHuggingFace({ kind: 'teacher', data: compactClassData(input) }); return { ...fallback, ...(ai?.insight || {}), source: ai ? 'huggingface' : 'deterministic', providerStatus: ai ? 'available' : 'local', message: ai ? 'AI class insight generated from the class evidence.' : 'Using built-in class insights from the class evidence.', model: ai?.model || null }; } catch (error) { if (process.env.AI_INSIGHTS_DEBUG === 'true') console.warn(`Teacher insight fallback: ${error.message}`); return { ...fallback, source: 'deterministic-fallback', providerStatus: 'fallback', message: 'AI insights are temporarily unavailable, so LearnLoop is showing built-in class insights from the class evidence.', model: null }; }
 }
 
 module.exports = { generateStudentInsight, generateTeacherInsight };

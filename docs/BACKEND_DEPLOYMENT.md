@@ -21,8 +21,11 @@ JWT_SECRET=long-random-environment-specific-secret
 CORS_ORIGIN=https://your-frontend-domain.example
 API_KEY_HASHES=sha256-hash-of-a-service-key
 ALLOW_TEACHER_SIGNUP=false
-OPENAI_API_KEY=server-only-openai-key
-OPENAI_MODEL=gpt-5.6-luna
+HF_TOKEN=server-only-huggingface-token
+HF_MODEL=openai/gpt-oss-20b:cheapest
+HF_FALLBACK_MODELS=HuggingFaceTB/SmolLM3-3B:cheapest
+HF_PREFER_FREE=true
+HF_FREE_ONLY=false
 AI_INSIGHTS_ENABLED=true
 AI_INSIGHTS_CACHE_MINUTES=30
 ```
@@ -58,7 +61,11 @@ Swagger UI is available at `/docs` and the machine-readable contract at `/openap
 - `GET /api/v1/teacher/classes/{classId}/insights` generates class priorities and reteaching suggestions.
 - Add `?refresh=true` only when a fresh model call is needed; otherwise the API serves the cached insight.
 
-The OpenAI key is read only by the backend. It is never returned to the browser or included in the student data payload. If the key is absent or the model call fails, the API returns a deterministic fallback so learning and teacher dashboards continue working.
+The Hugging Face token is read only by the backend. It is never returned to the browser or included in the student data payload. If the token is absent or the model call fails, the API returns a deterministic fallback so learning and teacher dashboards continue working.
+
+This uses the smaller open-weight `openai/gpt-oss-20b` model with Hugging Face's `:cheapest` routing policy. Hugging Face provides limited monthly free credits for free accounts, but hosted inference is not guaranteed to remain unlimited-free after those credits are used. Set a spending limit in Hugging Face if you want a hard budget cap.
+
+At runtime LearnLoop checks Hugging Face's available model list, prefers models reported as free, then tries the configured model and fallback models. If discovery, authentication, quota, model availability, timeout, or JSON parsing fails, the request still returns HTTP 200 with a built-in evidence-based insight. Set `HF_FREE_ONLY=true` to refuse non-free model candidates and always use the built-in summary when no free candidate is available.
 
 ## 5. Before inviting real users
 

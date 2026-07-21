@@ -53,7 +53,8 @@ See [docs/BACKEND_DEPLOYMENT.md](docs/BACKEND_DEPLOYMENT.md) for the Vercel/data
 - Adaptive next-question selection that prioritizes weak topics, avoids recent repeats, and adjusts difficulty.
 - Parameterized questions generated on the fly when the curated bank is exhausted for a learner.
 - Teacher class summaries, shared misconception clusters, student drill-downs, exact wrong selections, right solutions, and interventions.
-- Optional AI insight endpoints that turn measured evidence into student focus areas and teacher reteaching suggestions. The OpenAI key stays server-side, responses are cached, and deterministic summaries remain available without a key.
+- Optional Hugging Face AI insight endpoints that turn measured evidence into student focus areas and teacher reteaching suggestions. The Hugging Face token stays server-side, responses are cached, and deterministic summaries remain available without a token. The default uses the smaller `openai/gpt-oss-20b:cheapest` route to stay within free-tier credits as long as possible.
+- AI-provider failures are soft failures: unavailable models, quota limits, refused requests, timeouts, or malformed model output never break the learning API; the response returns a friendly built-in insight instead.
 
 ## Security boundary
 

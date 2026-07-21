@@ -37,13 +37,24 @@ teacher123
 - `POST /auth/login` logs in a student or teacher.
 - `GET /me` returns the current user.
 - `GET /students/{studentId}/mastery` returns topic and subskill mastery.
+- `GET /students/{studentId}/insights` returns cached student focus areas, evidence, and next steps; use `?refresh=true` to request a fresh AI summary.
 - `POST /practice/next` returns the next adaptive question.
 - `POST /practice/attempts` saves an answer and returns diagnosis plus updated mastery.
 - `GET /teacher/classes/{classId}/summary` returns teacher dashboard metrics and misconception clusters.
+- `GET /teacher/classes/{classId}/insights` returns class priorities and reteaching suggestions from the measured evidence.
 - `GET /teacher/classes/{classId}/students/{studentId}` returns a student drill-down with wrong answers, diagnoses, and intervention history.
 - `POST /teacher/classes/{classId}/students/{studentId}/interventions` saves teacher notes.
 
 The local API is `http://localhost:4174`; Swagger UI is `http://localhost:4174/docs`.
+
+AI insight configuration uses a server-only Hugging Face token:
+
+```text
+HF_TOKEN=hf_your_token
+HF_MODEL=openai/gpt-oss-20b:cheapest
+```
+
+The token is never sent to student browsers. The LearnLoop access key below is separate: it authenticates callers to the LearnLoop API, while `HF_TOKEN` authorizes the backend's model request.
 
 ## Suggested fast-track message
 

@@ -590,7 +590,13 @@ components:
             type: string
         source:
           type: string
-          enum: [openai, deterministic, deterministic-fallback]
+          enum: [huggingface, deterministic, deterministic-fallback]
+        providerStatus:
+          type: string
+          enum: [available, local, fallback]
+        message:
+          type: string
+          description: User-safe status message; provider failures are intentionally presented as a fallback, not an API error.
         model:
           type: string
           nullable: true
