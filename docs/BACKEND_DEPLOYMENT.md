@@ -21,6 +21,10 @@ JWT_SECRET=long-random-environment-specific-secret
 CORS_ORIGIN=https://your-frontend-domain.example
 API_KEY_HASHES=sha256-hash-of-a-service-key
 ALLOW_TEACHER_SIGNUP=false
+OPENAI_API_KEY=server-only-openai-key
+OPENAI_MODEL=gpt-5.6-luna
+AI_INSIGHTS_ENABLED=true
+AI_INSIGHTS_CACHE_MINUTES=30
 ```
 
 For the first database setup only, run the seed command locally with the production `DATABASE_URL`, or temporarily use `SEED_DEMO_DATA=true` and switch it back to false immediately afterward.
@@ -50,6 +54,11 @@ Swagger UI is available at `/docs` and the machine-readable contract at `/openap
 - Send `X-API-Key: <service-key>` for trusted server-to-server integrations.
 - API keys do not represent a student or teacher identity; `/me` therefore requires a JWT.
 - Teacher class data is restricted to the teacher's assigned class when using a JWT.
+- `GET /api/v1/students/{studentId}/insights` generates a student focus summary from mastery, subskills, and mistakes.
+- `GET /api/v1/teacher/classes/{classId}/insights` generates class priorities and reteaching suggestions.
+- Add `?refresh=true` only when a fresh model call is needed; otherwise the API serves the cached insight.
+
+The OpenAI key is read only by the backend. It is never returned to the browser or included in the student data payload. If the key is absent or the model call fails, the API returns a deterministic fallback so learning and teacher dashboards continue working.
 
 ## 5. Before inviting real users
 

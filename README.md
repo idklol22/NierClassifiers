@@ -53,6 +53,7 @@ See [docs/BACKEND_DEPLOYMENT.md](docs/BACKEND_DEPLOYMENT.md) for the Vercel/data
 - Adaptive next-question selection that prioritizes weak topics, avoids recent repeats, and adjusts difficulty.
 - Parameterized questions generated on the fly when the curated bank is exhausted for a learner.
 - Teacher class summaries, shared misconception clusters, student drill-downs, exact wrong selections, right solutions, and interventions.
+- Optional AI insight endpoints that turn measured evidence into student focus areas and teacher reteaching suggestions. The OpenAI key stays server-side, responses are cached, and deterministic summaries remain available without a key.
 
 ## Security boundary
 
