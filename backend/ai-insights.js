@@ -118,12 +118,12 @@ async function callOpenAI({ kind, data }) {
 
 async function generateStudentInsight(input) {
   const fallback = studentFallback(input);
-  try { return { ...fallback, ...(await callOpenAI({ kind: 'student', data: compactStudentData(input) }))?.insight, source: process.env.OPENAI_API_KEY ? 'openai' : 'deterministic', model: process.env.OPENAI_MODEL || null }; } catch (error) { console.error(error.message); return { ...fallback, source: 'deterministic-fallback', model: null }; }
+  try { const ai = await callOpenAI({ kind: 'student', data: compactStudentData(input) }); return { ...fallback, ...(ai?.insight || {}), source: ai ? 'openai' : 'deterministic', model: ai?.model || null }; } catch (error) { console.error(error.message); return { ...fallback, source: 'deterministic-fallback', model: null }; }
 }
 
 async function generateTeacherInsight(input) {
   const fallback = teacherFallback(input);
-  try { return { ...fallback, ...(await callOpenAI({ kind: 'teacher', data: compactClassData(input) }))?.insight, source: process.env.OPENAI_API_KEY ? 'openai' : 'deterministic', model: process.env.OPENAI_MODEL || null }; } catch (error) { console.error(error.message); return { ...fallback, source: 'deterministic-fallback', model: null }; }
+  try { const ai = await callOpenAI({ kind: 'teacher', data: compactClassData(input) }); return { ...fallback, ...(ai?.insight || {}), source: ai ? 'openai' : 'deterministic', model: ai?.model || null }; } catch (error) { console.error(error.message); return { ...fallback, source: 'deterministic-fallback', model: null }; }
 }
 
 module.exports = { generateStudentInsight, generateTeacherInsight };
