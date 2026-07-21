@@ -111,6 +111,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Attempt'
+  /students/{studentId}/insights:
+    get:
+      tags: [Students]
+      summary: Generate cached student learning insights
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - name: refresh
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Student focus areas and next steps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsightResponse'
   /practice/next:
     post:
       tags: [Practice]
@@ -197,6 +214,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClassSummary'
+  /teacher/classes/{classId}/insights:
+    get:
+      tags: [Teachers]
+      summary: Generate cached teacher class insights
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+        - name: refresh
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Class priorities and reteaching suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsightResponse'
   /teacher/classes/{classId}/students/{studentId}:
     get:
       tags: [Teachers]
@@ -521,6 +555,50 @@ components:
           $ref: '#/components/schemas/StudentMastery'
         nextQuestion:
           $ref: '#/components/schemas/Question'
+    InsightResponse:
+      type: object
+      properties:
+        headline:
+          type: string
+        summary:
+          type: string
+        weakTopics:
+          type: array
+          items:
+            type: object
+            required: [topic, score, evidence, action]
+            properties:
+              topic:
+                type: string
+              score:
+                type: number
+                minimum: 0
+                maximum: 1
+              evidence:
+                type: string
+              action:
+                type: string
+        nextSteps:
+          type: array
+          items:
+            type: string
+        encouragement:
+          type: string
+        teacherSuggestions:
+          type: array
+          items:
+            type: string
+        source:
+          type: string
+          enum: [openai, deterministic, deterministic-fallback]
+        model:
+          type: string
+          nullable: true
+        cached:
+          type: boolean
+        generatedAt:
+          type: string
+          format: date-time
     ClassSummary:
       type: object
       properties:
