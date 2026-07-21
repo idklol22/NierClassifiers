@@ -1,0 +1,1378 @@
+[
+  {
+    "id": "alg-01",
+    "title": "Quadratic roots",
+    "prompt": "Solve x² − 5x + 6 = 0.",
+    "options": [
+      {
+        "id": "a",
+        "text": "x = 1 or x = 6"
+      },
+      {
+        "id": "b",
+        "text": "x = 2 or x = 3"
+      },
+      {
+        "id": "c",
+        "text": "x = −2 or x = −3"
+      },
+      {
+        "id": "d",
+        "text": "x = 5 or x = 6"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "algebra"
+    ],
+    "skills": [
+      "factoring quadratics",
+      "zero-product property"
+    ],
+    "difficulty": 2,
+    "explanation": "Factor the quadratic as (x − 2)(x − 3) = 0, so x = 2 or x = 3.",
+    "diagnosis": {
+      "a": "The factors were not checked by multiplying them back out.",
+      "c": "The signs were reversed when forming the factors.",
+      "d": "The constant and coefficient were read as roots."
+    }
+  },
+  {
+    "id": "alg-02",
+    "title": "Logarithm equation",
+    "prompt": "Solve log₂(x) + log₂(x − 2) = 3.",
+    "options": [
+      {
+        "id": "a",
+        "text": "x = 2"
+      },
+      {
+        "id": "b",
+        "text": "x = 4"
+      },
+      {
+        "id": "c",
+        "text": "x = 1 + √9"
+      },
+      {
+        "id": "d",
+        "text": "x = 1 + √11"
+      }
+    ],
+    "answer": "d",
+    "tags": [
+      "algebra"
+    ],
+    "skills": [
+      "logarithm laws",
+      "domain restrictions"
+    ],
+    "difficulty": 4,
+    "explanation": "Combine the logs: log₂[x(x − 2)] = 3, giving x² − 2x = 8. The domain x > 2 selects x = 1 + √11.",
+    "diagnosis": {
+      "a": "The domain x > 2 was not checked.",
+      "b": "The logarithms were combined but the quadratic was solved incorrectly.",
+      "c": "The constant 8 was confused with the discriminant."
+    }
+  },
+  {
+    "id": "alg-03",
+    "title": "Arithmetic sequence",
+    "prompt": "An arithmetic sequence has first term 7 and common difference 4. What is its 20th term?",
+    "options": [
+      {
+        "id": "a",
+        "text": "80"
+      },
+      {
+        "id": "b",
+        "text": "83"
+      },
+      {
+        "id": "c",
+        "text": "87"
+      },
+      {
+        "id": "d",
+        "text": "91"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "algebra"
+    ],
+    "skills": [
+      "arithmetic sequences",
+      "nth term"
+    ],
+    "difficulty": 2,
+    "explanation": "Use aₙ = a₁ + (n − 1)d = 7 + 19(4) = 83.",
+    "diagnosis": {
+      "a": "The difference was multiplied by n instead of n − 1.",
+      "c": "The first term was counted twice.",
+      "d": "The sequence was continued one extra step."
+    }
+  },
+  {
+    "id": "alg-04",
+    "title": "Binomial coefficient",
+    "prompt": "What is the coefficient of x³ in (2 + x)⁵?",
+    "options": [
+      {
+        "id": "a",
+        "text": "10"
+      },
+      {
+        "id": "b",
+        "text": "20"
+      },
+      {
+        "id": "c",
+        "text": "40"
+      },
+      {
+        "id": "d",
+        "text": "80"
+      }
+    ],
+    "answer": "c",
+    "tags": [
+      "algebra"
+    ],
+    "skills": [
+      "binomial expansion",
+      "combinations"
+    ],
+    "difficulty": 3,
+    "explanation": "The x³ term is C(5,3)·2²·x³ = 10·4x³, so the coefficient is 40.",
+    "diagnosis": {
+      "a": "The combination count was omitted.",
+      "b": "The power of 2 was reduced incorrectly.",
+      "d": "The coefficient was doubled after the expansion."
+    }
+  },
+  {
+    "id": "fun-01",
+    "title": "Composite functions",
+    "prompt": "Given f(x) = 2x − 1 and g(x) = x² + 3, find f(g(2)).",
+    "options": [
+      {
+        "id": "a",
+        "text": "10"
+      },
+      {
+        "id": "b",
+        "text": "13"
+      },
+      {
+        "id": "c",
+        "text": "17"
+      },
+      {
+        "id": "d",
+        "text": "21"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "functions",
+      "algebra"
+    ],
+    "skills": [
+      "composition",
+      "substitution"
+    ],
+    "difficulty": 2,
+    "explanation": "g(2) = 7, then f(7) = 2(7) − 1 = 13.",
+    "diagnosis": {
+      "a": "The outer function was applied before evaluating the inner function.",
+      "c": "The substitution was carried out as f(2) + g(2).",
+      "d": "The −1 sign was lost."
+    }
+  },
+  {
+    "id": "fun-02",
+    "title": "Inverse functions",
+    "prompt": "If f(x) = (3x − 4)/2, what is f⁻¹(5)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "2"
+      },
+      {
+        "id": "b",
+        "text": "3"
+      },
+      {
+        "id": "c",
+        "text": "14/3"
+      },
+      {
+        "id": "d",
+        "text": "6"
+      }
+    ],
+    "answer": "c",
+    "tags": [
+      "functions",
+      "algebra"
+    ],
+    "skills": [
+      "inverse functions",
+      "linear equations"
+    ],
+    "difficulty": 3,
+    "explanation": "Set y = (3x − 4)/2. Solving 2y = 3x − 4 gives x = (2y + 4)/3, so f⁻¹(5) = 14/3.",
+    "diagnosis": {
+      "a": "The inverse operation order was reversed.",
+      "b": "The numerator was not isolated before dividing.",
+      "d": "The denominator 2 was multiplied instead of divided."
+    }
+  },
+  {
+    "id": "fun-03",
+    "title": "Graph transformations",
+    "prompt": "The graph of y = |x| is translated 3 units right and 2 units down. Which equation results?",
+    "options": [
+      {
+        "id": "a",
+        "text": "y = |x + 3| + 2"
+      },
+      {
+        "id": "b",
+        "text": "y = |x − 3| − 2"
+      },
+      {
+        "id": "c",
+        "text": "y = |x − 2| − 3"
+      },
+      {
+        "id": "d",
+        "text": "y = |x + 3| − 2"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "functions"
+    ],
+    "skills": [
+      "transformations",
+      "absolute value graphs"
+    ],
+    "difficulty": 2,
+    "explanation": "A right shift replaces x with x − 3; moving down subtracts 2.",
+    "diagnosis": {
+      "a": "Horizontal direction was reversed and the vertical shift was reversed.",
+      "c": "The horizontal and vertical shifts were swapped.",
+      "d": "The horizontal direction was reversed."
+    }
+  },
+  {
+    "id": "fun-04",
+    "title": "Asymptotes",
+    "prompt": "What is the vertical asymptote of h(x) = (x + 1)/(x − 4)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "x = −1"
+      },
+      {
+        "id": "b",
+        "text": "x = 0"
+      },
+      {
+        "id": "c",
+        "text": "y = 1"
+      },
+      {
+        "id": "d",
+        "text": "x = 4"
+      }
+    ],
+    "answer": "d",
+    "tags": [
+      "functions"
+    ],
+    "skills": [
+      "rational functions",
+      "asymptotes"
+    ],
+    "difficulty": 3,
+    "explanation": "The denominator is zero at x = 4 while the numerator is nonzero, so x = 4 is the vertical asymptote.",
+    "diagnosis": {
+      "a": "The numerator zero was mistaken for the vertical asymptote.",
+      "b": "The origin was selected without checking the denominator.",
+      "c": "The horizontal asymptote was identified instead."
+    }
+  },
+  {
+    "id": "trig-01",
+    "title": "Exact trigonometry",
+    "prompt": "What is the exact value of sin(π/6) + cos(π/3)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "0"
+      },
+      {
+        "id": "b",
+        "text": "1/2"
+      },
+      {
+        "id": "c",
+        "text": "1"
+      },
+      {
+        "id": "d",
+        "text": "√3/2"
+      }
+    ],
+    "answer": "c",
+    "tags": [
+      "trigonometry"
+    ],
+    "skills": [
+      "exact values",
+      "radians"
+    ],
+    "difficulty": 2,
+    "explanation": "Both sin(π/6) and cos(π/3) equal 1/2, so the sum is 1.",
+    "diagnosis": {
+      "a": "The two exact values were subtracted.",
+      "b": "Only one of the two terms was evaluated.",
+      "d": "√3/2 belongs to the 30° cosine value, not these two values."
+    }
+  },
+  {
+    "id": "trig-02",
+    "title": "Trig equation",
+    "prompt": "For 0° ≤ θ ≤ 360°, solve 2sin θ = √3.",
+    "options": [
+      {
+        "id": "a",
+        "text": "θ = 60° only"
+      },
+      {
+        "id": "b",
+        "text": "θ = 60°, 120°"
+      },
+      {
+        "id": "c",
+        "text": "θ = 30°, 150°"
+      },
+      {
+        "id": "d",
+        "text": "θ = 120°, 300°"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "trigonometry"
+    ],
+    "skills": [
+      "trig equations",
+      "quadrants"
+    ],
+    "difficulty": 3,
+    "explanation": "sin θ = √3/2 at the reference angle 60° in quadrants I and II.",
+    "diagnosis": {
+      "a": "The second-quadrant solution was missed.",
+      "c": "The reference angle for √3/2 was confused with 1/2.",
+      "d": "The quadrant signs for sine were not applied."
+    }
+  },
+  {
+    "id": "trig-03",
+    "title": "Identity reasoning",
+    "prompt": "Which expression is equivalent to (1 − cos²x)/sin x, where sin x ≠ 0?",
+    "options": [
+      {
+        "id": "a",
+        "text": "sin x"
+      },
+      {
+        "id": "b",
+        "text": "cos x"
+      },
+      {
+        "id": "c",
+        "text": "tan x"
+      },
+      {
+        "id": "d",
+        "text": "sec x"
+      }
+    ],
+    "answer": "a",
+    "tags": [
+      "trigonometry"
+    ],
+    "skills": [
+      "Pythagorean identities",
+      "simplification"
+    ],
+    "difficulty": 3,
+    "explanation": "Since 1 − cos²x = sin²x, divide by sin x to obtain sin x.",
+    "diagnosis": {
+      "b": "The identity was used without dividing by sin x.",
+      "c": "sin²x/cos x was confused with sin x/cos x.",
+      "d": "The reciprocal identity was selected."
+    }
+  },
+  {
+    "id": "trig-04",
+    "title": "Sine rule",
+    "prompt": "In a triangle, A = 30°, a = 8 and B = 45°. Find b.",
+    "options": [
+      {
+        "id": "a",
+        "text": "4√2"
+      },
+      {
+        "id": "b",
+        "text": "8√2"
+      },
+      {
+        "id": "c",
+        "text": "16"
+      },
+      {
+        "id": "d",
+        "text": "16√2"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "trigonometry",
+      "geometry"
+    ],
+    "skills": [
+      "sine rule",
+      "triangle geometry"
+    ],
+    "difficulty": 3,
+    "explanation": "Use b/sin45° = 8/sin30°. Thus b = 8(sin45°/sin30°) = 8√2.",
+    "diagnosis": {
+      "a": "The ratio was inverted.",
+      "c": "The factor of sin45° was omitted.",
+      "d": "The denominator sin30° was doubled incorrectly."
+    }
+  },
+  {
+    "id": "cal-01",
+    "title": "Derivative from first principles",
+    "prompt": "Differentiate f(x) = x³ − 4x.",
+    "options": [
+      {
+        "id": "a",
+        "text": "3x² − 4"
+      },
+      {
+        "id": "b",
+        "text": "x² − 4"
+      },
+      {
+        "id": "c",
+        "text": "3x − 4"
+      },
+      {
+        "id": "d",
+        "text": "3x² − 4x"
+      }
+    ],
+    "answer": "a",
+    "tags": [
+      "calculus",
+      "algebra"
+    ],
+    "skills": [
+      "power rule",
+      "polynomial differentiation"
+    ],
+    "difficulty": 2,
+    "explanation": "Apply the power rule term by term: f′(x) = 3x² − 4.",
+    "diagnosis": {
+      "b": "The exponent was reduced but not multiplied down.",
+      "c": "The power rule was applied as if the exponent were 1.",
+      "d": "The original x term was kept after differentiating."
+    }
+  },
+  {
+    "id": "cal-02",
+    "title": "Tangent gradient",
+    "prompt": "The gradient of y = x² − 3x + 2 at x = 4 is:",
+    "options": [
+      {
+        "id": "a",
+        "text": "3"
+      },
+      {
+        "id": "b",
+        "text": "4"
+      },
+      {
+        "id": "c",
+        "text": "5"
+      },
+      {
+        "id": "d",
+        "text": "8"
+      }
+    ],
+    "answer": "c",
+    "tags": [
+      "calculus"
+    ],
+    "skills": [
+      "derivative evaluation",
+      "gradient"
+    ],
+    "difficulty": 2,
+    "explanation": "y′ = 2x − 3, so y′(4) = 8 − 3 = 5.",
+    "diagnosis": {
+      "a": "The −3 was applied after substituting incorrectly.",
+      "b": "The original function value was confused with the gradient.",
+      "d": "The constant term was carried into the derivative."
+    }
+  },
+  {
+    "id": "cal-03",
+    "title": "Definite integration",
+    "prompt": "Evaluate ∫₀² (3x² + 1) dx.",
+    "options": [
+      {
+        "id": "a",
+        "text": "6"
+      },
+      {
+        "id": "b",
+        "text": "8"
+      },
+      {
+        "id": "c",
+        "text": "10"
+      },
+      {
+        "id": "d",
+        "text": "12"
+      }
+    ],
+    "answer": "c",
+    "tags": [
+      "calculus"
+    ],
+    "skills": [
+      "definite integration",
+      "area"
+    ],
+    "difficulty": 3,
+    "explanation": "An antiderivative is x³ + x. Evaluate [x³ + x]₀² = 8 + 2 = 10.",
+    "diagnosis": {
+      "a": "The +x term was omitted.",
+      "b": "The upper limit was substituted before integrating.",
+      "d": "The power rule for integration was misapplied."
+    }
+  },
+  {
+    "id": "cal-04",
+    "title": "Optimization",
+    "prompt": "A rectangle has perimeter 20. Which dimensions maximize its area?",
+    "options": [
+      {
+        "id": "a",
+        "text": "1 by 9"
+      },
+      {
+        "id": "b",
+        "text": "2 by 8"
+      },
+      {
+        "id": "c",
+        "text": "4 by 6"
+      },
+      {
+        "id": "d",
+        "text": "5 by 5"
+      }
+    ],
+    "answer": "d",
+    "tags": [
+      "calculus",
+      "geometry"
+    ],
+    "skills": [
+      "optimization",
+      "quadratic models"
+    ],
+    "difficulty": 3,
+    "explanation": "If one side is x, the other is 10 − x and A = x(10 − x), maximized at x = 5.",
+    "diagnosis": {
+      "a": "The perimeter was treated as area.",
+      "b": "The square-property of the maximum was not recognized.",
+      "c": "The vertex of the area quadratic was not found."
+    }
+  },
+  {
+    "id": "geo-01",
+    "title": "Circle equation",
+    "prompt": "Find the center of (x − 2)² + (y + 5)² = 16.",
+    "options": [
+      {
+        "id": "a",
+        "text": "(2, 5)"
+      },
+      {
+        "id": "b",
+        "text": "(−2, 5)"
+      },
+      {
+        "id": "c",
+        "text": "(2, −5)"
+      },
+      {
+        "id": "d",
+        "text": "(−2, −5)"
+      }
+    ],
+    "answer": "c",
+    "tags": [
+      "geometry"
+    ],
+    "skills": [
+      "circles",
+      "coordinate geometry"
+    ],
+    "difficulty": 2,
+    "explanation": "The standard form is (x − h)² + (y − k)² = r², so the center is (2, −5).",
+    "diagnosis": {
+      "a": "The sign inside the y bracket was not reversed.",
+      "b": "Both coordinate signs were reversed incorrectly.",
+      "d": "The sign inside the x bracket was also reversed."
+    }
+  },
+  {
+    "id": "geo-02",
+    "title": "Perpendicular vectors",
+    "prompt": "If u = (2, 3) and v = (k, 4) are perpendicular, find k.",
+    "options": [
+      {
+        "id": "a",
+        "text": "−6"
+      },
+      {
+        "id": "b",
+        "text": "−3"
+      },
+      {
+        "id": "c",
+        "text": "3"
+      },
+      {
+        "id": "d",
+        "text": "6"
+      }
+    ],
+    "answer": "a",
+    "tags": [
+      "geometry"
+    ],
+    "skills": [
+      "dot product",
+      "vectors"
+    ],
+    "difficulty": 3,
+    "explanation": "Perpendicular vectors have dot product zero: 2k + 12 = 0, hence k = −6.",
+    "diagnosis": {
+      "b": "Only one component was used in the dot product.",
+      "c": "The sign of the constant term was reversed.",
+      "d": "The zero-dot-product condition was not applied."
+    }
+  },
+  {
+    "id": "geo-03",
+    "title": "Line intersection",
+    "prompt": "Where do y = 2x + 1 and y = −x + 7 intersect?",
+    "options": [
+      {
+        "id": "a",
+        "text": "(1, 3)"
+      },
+      {
+        "id": "b",
+        "text": "(2, 5)"
+      },
+      {
+        "id": "c",
+        "text": "(3, 7)"
+      },
+      {
+        "id": "d",
+        "text": "(4, 9)"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "geometry",
+      "algebra"
+    ],
+    "skills": [
+      "simultaneous equations",
+      "line intersections"
+    ],
+    "difficulty": 2,
+    "explanation": "Set the equations equal: 2x + 1 = −x + 7, so x = 2 and y = 5.",
+    "diagnosis": {
+      "a": "The x-value was found but the wrong equation was used for y.",
+      "c": "The equations were added instead of equated.",
+      "d": "The intercept was substituted without solving for x."
+    }
+  },
+  {
+    "id": "geo-04",
+    "title": "Vector magnitude",
+    "prompt": "What is the magnitude of the vector (6, 8)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "7"
+      },
+      {
+        "id": "b",
+        "text": "10"
+      },
+      {
+        "id": "c",
+        "text": "14"
+      },
+      {
+        "id": "d",
+        "text": "48"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "geometry"
+    ],
+    "skills": [
+      "vector magnitude",
+      "Pythagoras"
+    ],
+    "difficulty": 1,
+    "explanation": "Magnitude = √(6² + 8²) = √100 = 10.",
+    "diagnosis": {
+      "a": "The components were averaged.",
+      "c": "The components were added instead of using Pythagoras.",
+      "d": "The components were multiplied."
+    }
+  },
+  {
+    "id": "prob-01",
+    "title": "Conditional probability",
+    "prompt": "A class has 12 girls and 8 boys. Four girls and two boys wear glasses. Given that a randomly chosen student wears glasses, what is the probability the student is a girl?",
+    "options": [
+      {
+        "id": "a",
+        "text": "1/3"
+      },
+      {
+        "id": "b",
+        "text": "1/2"
+      },
+      {
+        "id": "c",
+        "text": "2/3"
+      },
+      {
+        "id": "d",
+        "text": "3/4"
+      }
+    ],
+    "answer": "c",
+    "tags": [
+      "probability"
+    ],
+    "skills": [
+      "conditional probability",
+      "two-way tables"
+    ],
+    "difficulty": 3,
+    "explanation": "There are 6 glasses-wearers, 4 of whom are girls, so P(girl | glasses) = 4/6 = 2/3.",
+    "diagnosis": {
+      "a": "The total class size was used as the denominator.",
+      "b": "The girl and glasses counts were not conditioned on the event.",
+      "d": "The non-glasses students were included."
+    }
+  },
+  {
+    "id": "prob-02",
+    "title": "Binomial probability",
+    "prompt": "If X ~ Bin(4, 0.5), what is P(X = 2)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "1/16"
+      },
+      {
+        "id": "b",
+        "text": "1/4"
+      },
+      {
+        "id": "c",
+        "text": "3/8"
+      },
+      {
+        "id": "d",
+        "text": "1/2"
+      }
+    ],
+    "answer": "c",
+    "tags": [
+      "probability"
+    ],
+    "skills": [
+      "binomial distribution",
+      "combinations"
+    ],
+    "difficulty": 3,
+    "explanation": "P(X=2) = C(4,2)(0.5)²(0.5)² = 6/16 = 3/8.",
+    "diagnosis": {
+      "a": "The combination count was left out.",
+      "b": "Only two particular arrangements were counted.",
+      "d": "All four outcomes were treated as equally favorable."
+    }
+  },
+  {
+    "id": "prob-03",
+    "title": "Expected value",
+    "prompt": "A game pays $10 with probability 0.2 and loses $3 otherwise. What is the expected profit?",
+    "options": [
+      {
+        "id": "a",
+        "text": "$0.20"
+      },
+      {
+        "id": "b",
+        "text": "$−0.40"
+      },
+      {
+        "id": "c",
+        "text": "$1.40"
+      },
+      {
+        "id": "d",
+        "text": "$2.00"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "probability"
+    ],
+    "skills": [
+      "expected value",
+      "weighted means"
+    ],
+    "difficulty": 2,
+    "explanation": "E = 0.2(10) + 0.8(−3) = 2 − 2.4 = −0.4.",
+    "diagnosis": {
+      "a": "Only the winning outcome was weighted.",
+      "c": "The sign of the loss was handled incorrectly.",
+      "d": "The losing probability was omitted."
+    }
+  },
+  {
+    "id": "prob-04",
+    "title": "Independent events",
+    "prompt": "If P(A) = 0.4, P(B) = 0.25 and A and B are independent, find P(A ∩ B).",
+    "options": [
+      {
+        "id": "a",
+        "text": "0.10"
+      },
+      {
+        "id": "b",
+        "text": "0.15"
+      },
+      {
+        "id": "c",
+        "text": "0.40"
+      },
+      {
+        "id": "d",
+        "text": "0.65"
+      }
+    ],
+    "answer": "a",
+    "tags": [
+      "probability"
+    ],
+    "skills": [
+      "independence",
+      "intersection"
+    ],
+    "difficulty": 2,
+    "explanation": "For independent events, P(A ∩ B) = P(A)P(B) = 0.4 × 0.25 = 0.10.",
+    "diagnosis": {
+      "b": "The probabilities were subtracted.",
+      "c": "P(A) was copied instead of combining the events.",
+      "d": "The union rule was used."
+    }
+  },
+  {
+    "id": "mat-01",
+    "title": "Matrix determinant",
+    "prompt": "Find det([[3, 2], [1, 4]]).",
+    "options": [
+      {
+        "id": "a",
+        "text": "8"
+      },
+      {
+        "id": "b",
+        "text": "10"
+      },
+      {
+        "id": "c",
+        "text": "12"
+      },
+      {
+        "id": "d",
+        "text": "14"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "matrices"
+    ],
+    "skills": [
+      "determinants",
+      "2x2 matrices"
+    ],
+    "difficulty": 2,
+    "explanation": "For [[a,b],[c,d]], det = ad − bc = 3(4) − 2(1) = 10.",
+    "diagnosis": {
+      "a": "The off-diagonal product was added instead of subtracted.",
+      "c": "Only the diagonal product 3×4 was used.",
+      "d": "All four entries were added."
+    }
+  },
+  {
+    "id": "mat-02",
+    "title": "Matrix transformation",
+    "prompt": "The matrix [[0, −1], [1, 0]] transforms (1, 2) to:",
+    "options": [
+      {
+        "id": "a",
+        "text": "(−2, 1)"
+      },
+      {
+        "id": "b",
+        "text": "(2, −1)"
+      },
+      {
+        "id": "c",
+        "text": "(1, −2)"
+      },
+      {
+        "id": "d",
+        "text": "(−1, 2)"
+      }
+    ],
+    "answer": "a",
+    "tags": [
+      "matrices",
+      "geometry"
+    ],
+    "skills": [
+      "matrix multiplication",
+      "rotations"
+    ],
+    "difficulty": 3,
+    "explanation": "Multiply: (0·1 + −1·2, 1·1 + 0·2) = (−2, 1), a 90° anticlockwise rotation.",
+    "diagnosis": {
+      "b": "The rotation direction was reversed.",
+      "c": "The matrix was applied componentwise.",
+      "d": "The rows and columns were mixed."
+    }
+  },
+  {
+    "id": "mat-03",
+    "title": "Complex numbers",
+    "prompt": "Simplify (3 + 2i)(1 − i).",
+    "options": [
+      {
+        "id": "a",
+        "text": "1 − i"
+      },
+      {
+        "id": "b",
+        "text": "5 − i"
+      },
+      {
+        "id": "c",
+        "text": "5 + i"
+      },
+      {
+        "id": "d",
+        "text": "1 + 5i"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "matrices"
+    ],
+    "skills": [
+      "complex multiplication",
+      "i²"
+    ],
+    "difficulty": 2,
+    "explanation": "Expand to 3 − 3i + 2i − 2i² = 5 − i because i² = −1.",
+    "diagnosis": {
+      "a": "The i² term was not simplified.",
+      "c": "The sign on the imaginary term was lost.",
+      "d": "Real and imaginary parts were combined incorrectly."
+    }
+  },
+  {
+    "id": "mat-04",
+    "title": "Matrix equations",
+    "prompt": "If A = [[1, 2], [0, 1]], what is A²?",
+    "options": [
+      {
+        "id": "a",
+        "text": "[[1, 2], [0, 1]]"
+      },
+      {
+        "id": "b",
+        "text": "[[1, 4], [0, 1]]"
+      },
+      {
+        "id": "c",
+        "text": "[[2, 4], [0, 2]]"
+      },
+      {
+        "id": "d",
+        "text": "[[1, 0], [2, 1]]"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "matrices"
+    ],
+    "skills": [
+      "matrix multiplication",
+      "powers"
+    ],
+    "difficulty": 3,
+    "explanation": "A² = [[1·1+2·0, 1·2+2·1], [0, 1]] = [[1,4],[0,1]].",
+    "diagnosis": {
+      "a": "A was copied instead of multiplied.",
+      "c": "The diagonal entries were doubled.",
+      "d": "The matrix was transposed."
+    }
+  },
+  {
+    "id": "stat-01",
+    "title": "Normal distribution",
+    "prompt": "For a normal distribution with mean 70 and standard deviation 5, what z-score corresponds to x = 80?",
+    "options": [
+      {
+        "id": "a",
+        "text": "1"
+      },
+      {
+        "id": "b",
+        "text": "2"
+      },
+      {
+        "id": "c",
+        "text": "5"
+      },
+      {
+        "id": "d",
+        "text": "10"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "probability"
+    ],
+    "skills": [
+      "standardization",
+      "normal distribution"
+    ],
+    "difficulty": 2,
+    "explanation": "z = (x − μ)/σ = (80 − 70)/5 = 2.",
+    "diagnosis": {
+      "a": "The difference was divided by the wrong scale.",
+      "c": "The standard deviation was not used as a divisor.",
+      "d": "The raw difference was reported as the z-score."
+    }
+  },
+  {
+    "id": "stat-02",
+    "title": "Correlation",
+    "prompt": "A correlation coefficient of r = −0.92 indicates:",
+    "options": [
+      {
+        "id": "a",
+        "text": "A weak positive relationship"
+      },
+      {
+        "id": "b",
+        "text": "A strong positive relationship"
+      },
+      {
+        "id": "c",
+        "text": "A weak negative relationship"
+      },
+      {
+        "id": "d",
+        "text": "A strong negative relationship"
+      }
+    ],
+    "answer": "d",
+    "tags": [
+      "probability"
+    ],
+    "skills": [
+      "correlation",
+      "data interpretation"
+    ],
+    "difficulty": 1,
+    "explanation": "The magnitude is close to 1 (strong) and the sign is negative.",
+    "diagnosis": {
+      "a": "Both strength and direction were reversed.",
+      "b": "The negative sign was ignored.",
+      "c": "The direction was recognized but the magnitude was underestimated."
+    }
+  },
+  {
+    "id": "stat-03",
+    "title": "Sampling",
+    "prompt": "Which sampling method gives every student on a register an equal chance of selection?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Convenience sampling"
+      },
+      {
+        "id": "b",
+        "text": "Simple random sampling"
+      },
+      {
+        "id": "c",
+        "text": "Quota sampling"
+      },
+      {
+        "id": "d",
+        "text": "Snowball sampling"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "probability"
+    ],
+    "skills": [
+      "sampling methods",
+      "bias"
+    ],
+    "difficulty": 1,
+    "explanation": "A simple random sample selects from the full register with equal probability.",
+    "diagnosis": {
+      "a": "Ease of access was confused with equal probability.",
+      "c": "A target quota does not guarantee equal selection chance.",
+      "d": "Referrals do not give each student equal probability."
+    }
+  },
+  {
+    "id": "alg-05",
+    "title": "Inequality",
+    "prompt": "Solve 3x − 7 < 11.",
+    "options": [
+      {
+        "id": "a",
+        "text": "x < 6"
+      },
+      {
+        "id": "b",
+        "text": "x < 4/3"
+      },
+      {
+        "id": "c",
+        "text": "x > 6"
+      },
+      {
+        "id": "d",
+        "text": "x > 4/3"
+      }
+    ],
+    "answer": "a",
+    "tags": [
+      "algebra"
+    ],
+    "skills": [
+      "linear inequalities",
+      "inverse operations"
+    ],
+    "difficulty": 1,
+    "explanation": "Add 7 and divide by 3: 3x < 18, so x < 6.",
+    "diagnosis": {
+      "b": "The constant was divided before being moved.",
+      "c": "The inequality direction was reversed without multiplying by a negative.",
+      "d": "Both the value and direction were changed."
+    }
+  },
+  {
+    "id": "fun-05",
+    "title": "Function domain",
+    "prompt": "What is the domain of f(x) = √(2x − 6)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "x > 3"
+      },
+      {
+        "id": "b",
+        "text": "x ≥ 3"
+      },
+      {
+        "id": "c",
+        "text": "x ≤ 3"
+      },
+      {
+        "id": "d",
+        "text": "All real x"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "functions"
+    ],
+    "skills": [
+      "domain restrictions",
+      "radicals"
+    ],
+    "difficulty": 2,
+    "explanation": "The radicand must be nonnegative: 2x − 6 ≥ 0, so x ≥ 3.",
+    "diagnosis": {
+      "a": "The endpoint was excluded even though zero is allowed.",
+      "c": "The inequality was reversed.",
+      "d": "The square-root restriction was ignored."
+    }
+  },
+  {
+    "id": "cal-05",
+    "title": "Chain rule",
+    "prompt": "Differentiate y = (3x² + 1)⁴.",
+    "options": [
+      {
+        "id": "a",
+        "text": "4(3x² + 1)³"
+      },
+      {
+        "id": "b",
+        "text": "24x(3x² + 1)³"
+      },
+      {
+        "id": "c",
+        "text": "12x(3x² + 1)⁴"
+      },
+      {
+        "id": "d",
+        "text": "(3x² + 1)³"
+      }
+    ],
+    "answer": "b",
+    "tags": [
+      "calculus"
+    ],
+    "skills": [
+      "chain rule",
+      "composite functions"
+    ],
+    "difficulty": 3,
+    "explanation": "Differentiate the outer power and multiply by the inner derivative: 4(3x²+1)³·6x.",
+    "diagnosis": {
+      "a": "The inner derivative 6x was omitted.",
+      "c": "The exponent was applied to the derivative incorrectly.",
+      "d": "Only the inner expression was reduced."
+    }
+  },
+  {
+    "id": "trig-05",
+    "title": "Radians and arc length",
+    "prompt": "A circle has radius 6. What is the arc length for a central angle of π/3?",
+    "options": [
+      {
+        "id": "a",
+        "text": "2π"
+      },
+      {
+        "id": "b",
+        "text": "π"
+      },
+      {
+        "id": "c",
+        "text": "3π"
+      },
+      {
+        "id": "d",
+        "text": "6π"
+      }
+    ],
+    "answer": "a",
+    "tags": [
+      "trigonometry",
+      "geometry"
+    ],
+    "skills": [
+      "arc length",
+      "radians"
+    ],
+    "difficulty": 2,
+    "explanation": "Arc length s = rθ = 6·π/3 = 2π.",
+    "diagnosis": {
+      "b": "The radius was divided by the angle.",
+      "c": "The radius was multiplied by the denominator.",
+      "d": "The full circumference was used."
+    }
+  },
+  {
+    "id": "geo-05",
+    "title": "Midpoint",
+    "prompt": "Find the midpoint of A(−2, 5) and B(6, −1).",
+    "options": [
+      {
+        "id": "a",
+        "text": "(2, 2)"
+      },
+      {
+        "id": "b",
+        "text": "(4, 4)"
+      },
+      {
+        "id": "c",
+        "text": "(−4, 6)"
+      },
+      {
+        "id": "d",
+        "text": "(2, −2)"
+      }
+    ],
+    "answer": "a",
+    "tags": [
+      "geometry"
+    ],
+    "skills": [
+      "midpoint",
+      "coordinate geometry"
+    ],
+    "difficulty": 1,
+    "explanation": "Average the coordinates: ((−2+6)/2, (5−1)/2) = (2,2).",
+    "diagnosis": {
+      "b": "The coordinates were added without dividing by 2.",
+      "c": "The coordinate differences were used instead of averages.",
+      "d": "The y-coordinate sign was lost."
+    }
+  }
+]

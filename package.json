@@ -1,0 +1,31 @@
+{
+  "name": "learnloop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LearnLoop adaptive upper-high-school maths platform",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node backend/server.js",
+    "start": "node backend/server.js",
+    "seed": "node backend/seed.js",
+    "sync:questions": "node backend/sync-question-bank.js",
+    "key:generate": "node backend/generate-key.js",
+    "check": "node --check backend/app.js && node --check backend/server.js && node --check backend/seed.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0",
+    "zod": "^3.25.76"
+  }
+}

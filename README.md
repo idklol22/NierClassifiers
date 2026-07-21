@@ -1,43 +1,59 @@
 # LearnLoop
 
-LearnLoop is a hackathon-ready adaptive learning dashboard built around one complete, explainable loop:
+LearnLoop is an adaptive upper-high-school mathematics platform. The repository contains the browser experience plus a deployable API for authentication, persistent learning evidence, adaptive practice, generated follow-up questions, and teacher diagnostics.
 
-**student answer → evidence-based diagnosis → living concept map → next useful question → teacher action**
+## Run locally
 
-The current demo is intentionally narrow: fraction arithmetic, one class, and synthetic student data. It uses deterministic learning procedures so the core experience works without a model or backend connection.
+Install dependencies, then start the API:
 
-## Run the demo
+```bash
+npm install
+npm run dev
+```
 
-Open `index.html` in a modern browser. For a local server, run any static file server from this folder, for example:
+The API runs at `http://localhost:4174`. The browser demo remains available from the project folder:
 
 ```bash
 python -m http.server 4173
 ```
 
-Then visit `http://localhost:4173`.
+Open `http://localhost:4173` for the UI, `http://localhost:4174/docs` for Swagger UI, and `http://localhost:4174/health` for the API health check.
 
-## Demo path
+Local demo mode is enabled by setting `DEMO_MODE=true`, as shown in `.env.example`. It uses an in-memory repository so it can be run without a database. The API still hashes passwords and enforces JWT/API-key access in this mode.
 
-1. On first launch, complete the **Parent setup · Child login** prompt with the child's name and interests.
-2. Choose a presentation style such as Space explorer, Ocean explorer, Jungle adventurer, Mystery detective, or Creative learner.
-3. Stay in **Student view** and click **Continue practice**.
-4. Submit `2/6` to see a candidate diagnosis, or `5/6` to see a confirmed improvement signal.
-5. Switch to **Teacher view**.
-6. Open the **Unscaled numerator** cluster to inspect representative answer evidence.
-7. Click **Review and assign follow-up** to complete the teacher action.
+## Demo accounts
 
-## Child personalization
+- Student: `student@learnloop.demo` / `student123`
+- Teacher: `teacher@learnloop.demo` / `teacher123`
+- Demo integration key: `ll_demo_fasttrack_20260721_local_only`
 
-The parent setup creates a small presentation profile (`childName`, `favorite`, and `theme`). That profile changes the student-facing skin, welcome copy, card order emphasis, decorative language, colors, and next-step framing while keeping the underlying attempts, concept states, evidence, diagnosis, and recommendations unchanged. The profile is stored locally for this demo and can be changed from the child's top-bar interest chip.
+The demo key is for local testing only. Do not use it in a hosted environment.
 
-## Product boundaries
+## Production deployment
 
-- Synthetic or anonymized data only.
-- Fraction procedures and exact-answer validation only.
-- No claim of classroom learning gains.
-- Neutral states: unknown, developing, blocked, improving, and mastered.
-- Recommendations show their reason and evidence quality.
+The backend is Postgres-first and includes `api/index.js` plus `vercel.json` for Vercel. Set these Vercel Environment Variables:
 
-## Next build steps
+- `DATABASE_URL`: managed Postgres connection string (Neon, Supabase, Railway, or equivalent).
+- `JWT_SECRET`: long random secret, different for each environment.
+- `DEMO_MODE=false`.
+- `SEED_DEMO_DATA=false` after the initial controlled seed.
+- `CORS_ORIGIN`: the deployed frontend origin.
+- `API_KEY_HASHES` or a rotated `API_KEYS` value for service-to-service clients.
 
-The UI is structured so the deterministic demo can be replaced with versioned API contracts later: attempt capture, diagnosis, concept map, next-question selection, cluster summaries, and intervention records.
+Run `npm run seed` once against the production database if you want the bundled question bank and demo accounts. For a real school, replace the demo accounts with provisioned users and rotate the integration key before sharing access.
+
+See [docs/BACKEND_DEPLOYMENT.md](docs/BACKEND_DEPLOYMENT.md) for the Vercel/database checklist and [docs/openapi.yaml](docs/openapi.yaml) for the API contract.
+
+## Included learning model
+
+- 36 curated questions across algebra, functions, trigonometry, calculus, coordinate geometry/vectors, probability/statistics, matrices, and complex numbers.
+- Multi-topic and multi-subskill tags.
+- Distractor-level misconception diagnoses, not just right/wrong results.
+- Topic and subskill mastery computed from every attempt.
+- Adaptive next-question selection that prioritizes weak topics, avoids recent repeats, and adjusts difficulty.
+- Parameterized questions generated on the fly when the curated bank is exhausted for a learner.
+- Teacher class summaries, shared misconception clusters, student drill-downs, exact wrong selections, right solutions, and interventions.
+
+## Security boundary
+
+Passwords are hashed with bcrypt on the server. End-user sessions use signed JWTs. API keys are intended for trusted integrations and are separate from student/teacher identity. Production should use HTTPS, managed Postgres, environment secrets, key rotation, database backups, and a real deployment-specific CORS origin.

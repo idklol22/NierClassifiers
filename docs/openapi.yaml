@@ -1,0 +1,606 @@
+openapi: 3.0.3
+info:
+  title: LearnLoop Adaptive Maths API
+  version: 0.1.0
+  description: >
+    API contract for LearnLoop, an adaptive upper-high-school maths learning
+    platform with student practice, teacher diagnostics, topic mastery, subskill
+    misconceptions, and generated follow-up questions.
+servers:
+  - url: https://your-project.vercel.app/api/v1
+    description: Vercel deployment placeholder
+  - url: http://localhost:4174/api/v1
+    description: Local API
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+tags:
+  - name: Auth
+  - name: Students
+  - name: Practice
+  - name: Teachers
+  - name: Questions
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login as a student or teacher
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/signup:
+    post:
+      tags: [Auth]
+      summary: Create a student or teacher account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+  /me:
+    get:
+      tags: [Auth]
+      summary: Get the current user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /students/{studentId}/mastery:
+    get:
+      tags: [Students]
+      summary: Get topic and subskill mastery for a student
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Student learning model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentMastery'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /students/{studentId}/attempts:
+    get:
+      tags: [Students]
+      summary: List recent attempts for a student
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Student attempts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attempt'
+  /practice/next:
+    post:
+      tags: [Practice]
+      summary: Get the next adaptive question for a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NextQuestionRequest'
+      responses:
+        '200':
+          description: Next recommended question
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+  /practice/attempts:
+    post:
+      tags: [Practice]
+      summary: Submit a student answer attempt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAttemptRequest'
+      responses:
+        '201':
+          description: Attempt saved and learning model updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttemptResult'
+  /questions:
+    get:
+      tags: [Questions]
+      summary: Search curated and generated questions
+      parameters:
+        - name: topic
+          in: query
+          schema:
+            type: string
+        - name: skill
+          in: query
+          schema:
+            type: string
+        - name: difficulty
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 4
+        - name: includeAnswers
+          in: query
+          description: Include answer keys and diagnoses. Requires a teacher JWT or API key.
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 250
+      responses:
+        '200':
+          description: Matching questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+  /teacher/classes/{classId}/summary:
+    get:
+      tags: [Teachers]
+      summary: Get class-level diagnostic summary
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+      responses:
+        '200':
+          description: Teacher dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSummary'
+  /teacher/classes/{classId}/students/{studentId}:
+    get:
+      tags: [Teachers]
+      summary: Get a student diagnostic drill-down for a teacher
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Student diagnostic view
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDiagnostic'
+  /teacher/classes/{classId}/students/{studentId}/interventions:
+    post:
+      tags: [Teachers]
+      summary: Save a teacher intervention note
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterventionRequest'
+      responses:
+        '201':
+          description: Intervention saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Intervention'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    StudentId:
+      name: studentId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: stu_maya
+    ClassId:
+      name: classId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: class-advanced
+  responses:
+    Unauthorized:
+      description: Missing or invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: student@learnloop.demo
+        password:
+          type: string
+          format: password
+          example: student123
+        role:
+          type: string
+          enum: [student, teacher]
+    SignupRequest:
+      allOf:
+        - $ref: '#/components/schemas/LoginRequest'
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+              example: Maya Chen
+            classId:
+              type: string
+              example: class-advanced
+    LoginResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+          example: demo.jwt.token
+        expiresIn:
+          type: string
+          example: 7d
+        user:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      required: [id, role, name, email]
+      properties:
+        id:
+          type: string
+          example: stu_maya
+        role:
+          type: string
+          enum: [student, teacher]
+        name:
+          type: string
+          example: Maya Chen
+        email:
+          type: string
+          format: email
+        classId:
+          type: string
+          example: class-advanced
+    StudentMastery:
+      type: object
+      required: [student, topics, subskills]
+      properties:
+        student:
+          $ref: '#/components/schemas/User'
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopicMastery'
+        subskills:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubskillMastery'
+        attempts:
+          type: integer
+        accuracy:
+          type: number
+    TopicMastery:
+      type: object
+      properties:
+        id:
+          type: string
+          example: probability
+        label:
+          type: string
+          example: Probability and statistics
+        score:
+          type: number
+          minimum: 0
+          maximum: 1
+          example: 0.42
+        attempts:
+          type: integer
+          example: 8
+    SubskillMastery:
+      type: object
+      properties:
+        skill:
+          type: string
+          example: binomial distribution
+        score:
+          type: number
+          minimum: 0
+          maximum: 1
+        attempts:
+          type: integer
+        lastDiagnosis:
+          type: string
+          example: The combination count was left out.
+    Question:
+      type: object
+      required: [id, title, prompt, options, tags, skills, difficulty]
+      properties:
+        id:
+          type: string
+          example: prob_binomial_01
+        title:
+          type: string
+        prompt:
+          type: string
+        options:
+          type: array
+          minItems: 2
+          items:
+            type: object
+            required: [id, text]
+            properties:
+              id:
+                type: string
+              text:
+                type: string
+        answer:
+          type: string
+          description: Omitted from student practice responses.
+        tags:
+          type: array
+          items:
+            type: string
+          example: [probability, algebra]
+        skills:
+          type: array
+          items:
+            type: string
+          example: [binomial distribution, combinations]
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 4
+        hint:
+          type: string
+        explanation:
+          type: string
+        diagnosis:
+          type: object
+          additionalProperties:
+            type: string
+        generated:
+          type: boolean
+    DistractorDiagnosis:
+      type: object
+      properties:
+        optionIndex:
+          type: integer
+        diagnosis:
+          type: string
+        skill:
+          type: string
+    NextQuestionRequest:
+      type: object
+      required: [studentId]
+      properties:
+        studentId:
+          type: string
+        preferredTopic:
+          type: string
+        avoidQuestionIds:
+          type: array
+          items:
+            type: string
+    SubmitAttemptRequest:
+      type: object
+      required: [studentId, questionId]
+      properties:
+        studentId:
+          type: string
+        questionId:
+          type: string
+        selectedIndex:
+          type: integer
+          minimum: 0
+        selectedOptionId:
+          type: string
+        confidence:
+          type: integer
+          minimum: 1
+          maximum: 5
+        hintUsed:
+          type: boolean
+          default: false
+    Attempt:
+      type: object
+      properties:
+        id:
+          type: string
+        studentId:
+          type: string
+        questionId:
+          type: string
+        selectedIndex:
+          type: integer
+        selectedOptionId:
+          type: string
+        selectedText:
+          type: string
+        selectedOptionText:
+          type: string
+        correct:
+          type: boolean
+        confidence:
+          type: integer
+        hintUsed:
+          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+        skills:
+          type: array
+          items:
+            type: string
+        diagnosis:
+          type: string
+        diagnosisSkill:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        questionSnapshot:
+          $ref: '#/components/schemas/Question'
+    AttemptResult:
+      type: object
+      properties:
+        attempt:
+          $ref: '#/components/schemas/Attempt'
+        correctAnswer:
+          type: string
+        solution:
+          type: string
+        updatedMastery:
+          $ref: '#/components/schemas/StudentMastery'
+        nextQuestion:
+          $ref: '#/components/schemas/Question'
+    ClassSummary:
+      type: object
+      properties:
+        classId:
+          type: string
+        className:
+          type: string
+        activeStudents:
+          type: integer
+        totalStudents:
+          type: integer
+        totalAttempts:
+          type: integer
+        averageMastery:
+          type: number
+        topicAverages:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopicMastery'
+        misconceptionClusters:
+          type: array
+          items:
+            $ref: '#/components/schemas/MisconceptionCluster'
+    MisconceptionCluster:
+      type: object
+      properties:
+        skill:
+          type: string
+        diagnosis:
+          type: string
+        studentCount:
+          type: integer
+        affectedStudentIds:
+          type: array
+          items:
+            type: string
+    StudentDiagnostic:
+      type: object
+      properties:
+        student:
+          $ref: '#/components/schemas/User'
+        mastery:
+          $ref: '#/components/schemas/StudentMastery'
+        recentIncorrect:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attempt'
+        recommendedTopics:
+          type: array
+          items:
+            type: string
+        interventions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Intervention'
+    InterventionRequest:
+      type: object
+      required: [note]
+      properties:
+        note:
+          type: string
+          example: Reteach binomial coefficient setup before independent practice.
+    Intervention:
+      type: object
+      properties:
+        id:
+          type: string
+        teacherId:
+          type: string
+        studentId:
+          type: string
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
