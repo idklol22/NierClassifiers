@@ -47,14 +47,15 @@ teacher123
 
 The local API is `http://localhost:4174`; Swagger UI is `http://localhost:4174/docs`.
 
-AI insight configuration uses a server-only Hugging Face token:
+AI insight configuration uses a server-only Groq API key:
 
 ```text
-HF_TOKEN=hf_your_token
-HF_MODEL=openai/gpt-oss-20b:cheapest
+GROQ_API_KEY=gsk_your_rotated_key
+GROQ_MODEL=openai/gpt-oss-120b
+GROQ_FALLBACK_MODELS=qwen/qwen3.6-27b
 ```
 
-The token is never sent to student browsers. The LearnLoop access key below is separate: it authenticates callers to the LearnLoop API, while `HF_TOKEN` authorizes the backend's model request.
+The key is never sent to student browsers. The LearnLoop access key below is separate: it authenticates callers to the LearnLoop API, while `GROQ_API_KEY` authorizes the backend's model request.
 
 ## Suggested fast-track message
 

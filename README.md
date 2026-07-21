@@ -13,7 +13,7 @@ This entire codebase was developed phase by phase with Codex running on GPT-5.6,
 | 1. Product foundation | Translated the learning-platform requirements into the application structure, data model, question format, and interface plan. | LearnLoop browser application, curated mathematics question bank, and adaptive-learning foundations. |
 | 2. Learning experience | Implemented and iterated on the student and teacher flows, including practice sessions, answer feedback, mastery evidence, and diagnostics. | Responsive frontend, adaptive question selection, misconception tracking, and teacher views. |
 | 3. Production backend | Built and connected the API, database repository layer, authentication, authorization, validation, and deployment configuration. | Express/Postgres backend, JWT sessions, password hashing, API keys, seed tooling, and Vercel support. |
-| 4. AI insights and hardening | Added the optional AI insight workflow, reviewed failure cases, improved fallbacks, and aligned operational documentation with the implementation. | Server-side Hugging Face insight endpoints, deterministic fallbacks, OpenAPI documentation, deployment guidance, and local run instructions. |
+| 4. AI insights and hardening | Added the optional AI insight workflow, reviewed failure cases, improved fallbacks, and aligned operational documentation with the implementation. | Server-side Groq insight endpoints, deterministic fallbacks, OpenAPI documentation, deployment guidance, and local run instructions. |
 
 Codex and GPT-5.6 were used throughout the phases for implementation, debugging, code review, integration, and documentation. Terra and Luna were used alongside them to iterate on features, identify gaps, and strengthen the final end-to-end product.
 
@@ -68,7 +68,7 @@ See [docs/BACKEND_DEPLOYMENT.md](docs/BACKEND_DEPLOYMENT.md) for the Vercel/data
 - Adaptive next-question selection that prioritizes weak topics, avoids recent repeats, and adjusts difficulty.
 - Parameterized questions generated on the fly when the curated bank is exhausted for a learner.
 - Teacher class summaries, shared misconception clusters, student drill-downs, exact wrong selections, right solutions, and interventions.
-- Optional Hugging Face AI insight endpoints that turn measured evidence into student focus areas and teacher reteaching suggestions. The Hugging Face token stays server-side, responses are cached, and deterministic summaries remain available without a token. The default uses the smaller `openai/gpt-oss-20b:cheapest` route to stay within free-tier credits as long as possible.
+- Optional Groq AI insight endpoints that turn measured evidence into student focus areas and teacher reteaching suggestions. The Groq API key stays server-side, responses are cached, and deterministic summaries remain available without a key. Configure `GROQ_MODEL=openai/gpt-oss-120b` with `qwen/qwen3.6-27b` as the fallback model.
 - AI-provider failures are soft failures: unavailable models, quota limits, refused requests, timeouts, or malformed model output never break the learning API; the response returns a friendly built-in insight instead.
 
 ## Security boundary

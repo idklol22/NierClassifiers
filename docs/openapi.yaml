@@ -590,7 +590,7 @@ components:
             type: string
         source:
           type: string
-          enum: [huggingface, deterministic, deterministic-fallback]
+          enum: [groq, deterministic, deterministic-fallback]
         providerStatus:
           type: string
           enum: [available, local, fallback]
