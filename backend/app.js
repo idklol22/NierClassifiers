@@ -13,6 +13,7 @@ const { z } = require('zod');
 const { createRepository, id, now, normalizeUser } = require('./repository');
 const { seedRepository } = require('./seed');
 const { TOPICS, masteryFromAttempts, weakestTopic, getQuestionDiagnosis, getNextQuestion, buildClassDiagnostics, summarizeTopic } = require('./learning');
+const { generateStudentInsight, generateTeacherInsight } = require('./ai-insights');
 
 const app = express();
 const repository = createRepository();
@@ -37,6 +38,7 @@ app.locals.ready = repository.initialize().then(async () => {
 app.use(async (_req, _res, next) => { try { await app.locals.ready; next(); } catch (error) { next(error); } });
 
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false, message: { error: 'Too many login attempts. Try again later.' } });
+const aiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-8', legacyHeaders: false, message: { error: 'Too many insight requests. Try again later.' } });
 
 function apiError(status, message, details) { const error = new Error(message); error.status = status; error.details = details; return error; }
 function requireSchema(schema, value) { const result = schema.safeParse(value); if (!result.success) throw apiError(400, 'Request validation failed.', result.error.flatten()); return result.data; }
@@ -111,6 +113,14 @@ async function getClassAndCheck(req, classId) {
   if (!teacherClasses.includes(classId)) throw apiError(403, 'You are not assigned to this class.');
   return classRecord;
 }
+async function cachedInsight(scopeKey, refresh, generator) {
+  const cacheMinutes = Math.min(Math.max(Number(process.env.AI_INSIGHTS_CACHE_MINUTES) || 30, 1), 1440);
+  const cached = await repository.getInsight(scopeKey);
+  if (!refresh && cached && Date.now() - new Date(cached.createdAt).getTime() < cacheMinutes * 60 * 1000) return { ...cached.payload, cached: true, generatedAt: cached.createdAt };
+  const insight = await generator();
+  const saved = await repository.saveInsight({ scopeKey, kind: scopeKey.startsWith('class:') ? 'teacher' : 'student', subjectId: scopeKey.split(':')[1], payload: insight, model: insight.model });
+  return { ...insight, cached: false, generatedAt: saved.createdAt };
+}
 
 const loginSchema = z.object({ email: z.string().email().transform(value => value.toLowerCase()), password: z.string().min(6), role: z.enum(['student', 'teacher']).optional() });
 const signupSchema = loginSchema.extend({ name: z.string().trim().min(2).max(100), classId: z.string().trim().min(2).max(100).optional() });
@@ -162,6 +172,16 @@ app.get(`${apiPrefix}/students/:studentId/attempts`, requireStudentAccess, async
   try { await getStudent(req.params.studentId); const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100); const attempts = await repository.getAttemptsForStudent(req.params.studentId); res.json(attempts.slice(-limit).reverse()); } catch (error) { next(error); }
 });
 
+app.get(`${apiPrefix}/students/:studentId/insights`, aiLimiter, requireStudentAccess, async (req, res, next) => {
+  try {
+    const student = await getStudent(req.params.studentId);
+    const attempts = await repository.getAttemptsForStudent(student.id);
+    const mastery = masteryFromAttempts(attempts);
+    const insight = await cachedInsight(`student:${student.id}`, req.query.refresh === 'true', () => generateStudentInsight({ mastery, attempts }));
+    res.json({ student: publicUser(student), ...insight });
+  } catch (error) { next(error); }
+});
+
 app.post(`${apiPrefix}/practice/next`, requireStudentAccess, async (req, res, next) => {
   try {
     const input = requireSchema(nextSchema, req.body);
@@ -210,6 +230,25 @@ app.get(`${apiPrefix}/teacher/classes/:classId/summary`, requireTeacher, async (
     const studentMastery = students.map(student => ({ student, model: masteryFromAttempts(attempts.filter(attempt => attempt.studentId === student.id)) }));
     const allScores = studentMastery.flatMap(item => item.model.topics.map(topic => topic.score));
     res.json({ classId: classRecord.id, className: classRecord.name, activeStudents: new Set(attempts.map(attempt => attempt.studentId)).size, totalStudents: students.length, totalAttempts: attempts.length, averageMastery: allScores.length ? allScores.reduce((sum, score) => sum + score, 0) / allScores.length : 0.5, topicAverages, misconceptionClusters: diagnostics });
+  } catch (error) { next(error); }
+});
+
+app.get(`${apiPrefix}/teacher/classes/:classId/insights`, aiLimiter, requireTeacher, async (req, res, next) => {
+  try {
+    const classRecord = await getClassAndCheck(req, req.params.classId);
+    const students = await repository.listClassStudents(classRecord.id);
+    const attempts = await repository.getAttemptsForStudents(students.map(student => student.id));
+    const topicAverages = TOPICS.map(topic => summarizeTopic(attempts, topic));
+    const diagnostics = buildClassDiagnostics(attempts).map(item => ({ ...item, affectedStudentIds: attempts.filter(attempt => !attempt.correct && attempt.diagnosis === item.diagnosis && attempt.diagnosisSkill === item.skill).map(attempt => attempt.studentId).filter((studentId, index, all) => all.indexOf(studentId) === index) }));
+    const studentPriorities = students.map(student => {
+      const model = masteryFromAttempts(attempts.filter(attempt => attempt.studentId === student.id));
+      const priority = [...model.topics].sort((a, b) => a.score - b.score)[0];
+      return { label: `Student ${students.indexOf(student) + 1}`, priorityTopic: priority?.label || priority?.id, score: priority?.score ?? 0.5 };
+    });
+    const allScores = students.flatMap(student => masteryFromAttempts(attempts.filter(attempt => attempt.studentId === student.id)).topics.map(topic => topic.score));
+    const classSummary = { classId: classRecord.id, className: classRecord.name, activeStudents: new Set(attempts.map(attempt => attempt.studentId)).size, totalStudents: students.length, totalAttempts: attempts.length, averageMastery: allScores.length ? allScores.reduce((sum, score) => sum + score, 0) / allScores.length : 0.5, topicAverages, misconceptionClusters: diagnostics };
+    const insight = await cachedInsight(`class:${classRecord.id}`, req.query.refresh === 'true', () => generateTeacherInsight({ classSummary, students: studentPriorities }));
+    res.json({ classId: classRecord.id, className: classRecord.name, ...insight });
   } catch (error) { next(error); }
 });
 
